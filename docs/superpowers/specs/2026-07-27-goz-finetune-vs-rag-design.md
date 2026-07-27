@@ -1,4 +1,4 @@
-# Design: GOZ-Code-Klassifikation per LoRA-Finetuning vs. RAG-Baseline
+# Design: GOZ-Code-Extraktion per LoRA-Finetuning vs. RAG-Baseline
 
 **Datum:** 2026-07-27
 **Repo:** `goz-finetune-vs-rag` (neu, `02_Portfolio/goz-finetune-vs-rag`)
@@ -26,9 +26,9 @@ Aus dem MAIKA-Repo (`github.com/maggostang-droid/dentist`, lokal unter
 - `data/databases/goz_database_v4.json`, und zwar **nur** die Felder `goz_nr`
   und `bezeichnung` — die amtliche Gebührenordnung für Zahnärzte (GOZ) ist ein
   Rechtsverordnungstext, öffentlich und unproblematisch.
-- Die 5 `tests/fixtures/golden_single_v2/*synth_*.json`-Fixtures als Vorlage/
-  Formatbeispiel für zusätzliche selbst generierte Multi-Code-Testfälle (nicht
-  als exakte Kopie, sondern als Format-Referenz).
+- Die 5 `tests/fixtures/golden_single_v2/*synth_*.json`-Fixtures direkt als
+  Testbeispiele (Notiz + erwartete Codes) sowie als Formatvorlage für die
+  zusätzlichen selbst generierten synthetischen Notizen.
 
 **Ausdrücklich NICHT verwendet:** Liebold-Kommentare, `kommentar_kurz`,
 `aliases`, `synonyms.json`, die MAIKA-Embeddings (`goz_embeddings_vault.json`/
@@ -43,8 +43,11 @@ oder potenziell vertrauliche/personenbezogene Praxisdaten (`real_*`-Fixtures).
 
 ## Aufgabe
 
-Klassifikation: kurzer Text eines zahnärztlichen Behandlungsschritts →
-passende GOZ-Ziffer (Single-Label, aus einer festen Codeliste).
+Multi-Label-Extraktion: ganze zahnärztliche Behandlungsnotiz (kann mehrere
+Behandlungsschritte einer Sitzung beschreiben) → Menge der zutreffenden
+GOZ-Ziffern aus einer festen Codeliste. Das ist die vereinfachte Version von
+MAIKAs Kernaufgabe (Retrieval + Extraktion, ohne die Segmentierungs-Stufe,
+die ~50 Validierungsregeln und die Ä1/Ä3/Ä5-Sonderbehandlung).
 
 - **Label-Space:** ~40-60 Codes aus den Alltags-Kategorien Konservierende
   Leistungen, Chirurgische Leistungen, Allgemeine zahnärztliche Leistungen
@@ -52,18 +55,18 @@ passende GOZ-Ziffer (Single-Label, aus einer festen Codeliste).
   würde im Zeitbudget zu wenige Trainingsbeispiele pro seltener Klasse
   bedeuten, z.B. KFO/Schienen).
 - **Trainingsdaten:** komplett synthetisch, per LLM-Generierungs-Skript
-  erzeugt, ~20-30 Beispielsätze pro Code in drei Schwierigkeitsstufen:
-  - leicht: nah an der amtlichen `bezeichnung`-Formulierung
-  - mittel: umgangssprachliche Zahnarzt-Notiz, andere Wortwahl
-  - schwer: Abkürzungen/implizite Formulierung ohne offensichtliche
-    Stichwort-Überlappung mit der amtlichen Bezeichnung
-  → ca. 1000-1500 Beispiele gesamt, stratifizierter 80/20 Train/Test-Split
-  nach Code.
-- **Bonus-Testset:** die 5 vorhandenen `synth_*`-Fixtures plus ca. 15-20
-  weitere, selbst generierte Multi-Code-Beispiele im gleichen Format (ganze
-  Notiz → mehrere GOZ-Codes). Dient als qualitativer Realismus-Check
-  (andere Struktur als das Haupt-Testset: Mehrfach-Codes pro Notiz statt
-  Einzelschritt-Klassifikation), nicht Teil der Haupt-Metrik.
+  erzeugt, im Format der vorhandenen `synth_*`-Fixtures (Notiz-Text +
+  Liste der zutreffenden Codes), in drei Schwierigkeitsstufen:
+  - leicht: Notiz nah an den amtlichen `bezeichnung`-Formulierungen der
+    enthaltenen Codes
+  - mittel: umgangssprachliche Zahnarzt-Notiz, andere Wortwahl,
+    typischerweise 2-3 Codes pro Notiz
+  - schwer: Abkürzungen/implizite Formulierung, teils Codes ohne
+    offensichtliche Stichwort-Überlappung zur amtlichen Bezeichnung
+  → ca. 300-500 synthetische Notizen. Die 5 echten `synth_*`-Fixtures
+  fließen als hochwertige Beispiele ins Test-Set ein (nicht als Vorlage
+  für ein separates Bonus-Set). Split auf Notiz-Ebene (nicht auf
+  Code-Ebene), damit keine Notiz gleichzeitig in Train und Test landet.
 
 ## Modell & Training
 
@@ -71,9 +74,10 @@ passende GOZ-Ziffer (Single-Label, aus einer festen Codeliste).
   muss akzeptiert werden — eingeplanter erster Schritt).
 - **Methode:** QLoRA (4-bit) via Hugging Face + PEFT, Training auf
   Colab-T4-GPU.
-- **Prompt-Format:** Instruktion ("Klassifiziere den folgenden
-  Behandlungsschritt mit der passenden GOZ-Ziffer aus der Liste: ...") +
-  Behandlungsschritt-Text → Ziffer als Output.
+- **Prompt-Format:** Instruktion ("Extrahiere alle zutreffenden GOZ-Ziffern
+  aus der folgenden Behandlungsnotiz. Antworte als Liste von Ziffern aus der
+  Codeliste: ...") + Notiz-Text → Liste von Ziffern als Output. LoRA-Gewichte
+  enthalten das Domänenwissen; **kein Retrieval zur Inferenzzeit**.
 - **Reproduzierbarkeit:** Generierungs-Skript, Trainings-Skript und
   Hyperparameter werden versioniert; Datengenerierung nutzt eine LLM-API
   (Anthropic, analog zum bestehenden `sql-agent`-Setup mit
@@ -81,38 +85,52 @@ passende GOZ-Ziffer (Single-Label, aus einer festen Codeliste).
 
 ## RAG-Baseline
 
-Eigene, schlanke Nachbildung von MAIKAs Hybrid-Retrieval-Prinzip — **nicht**
-MAIKAs Code oder Daten, sondern selbst gebaut, nur mit öffentlichen Daten:
+Echtes Retrieval-Augmented-Generation, selbst gebaut, nur mit öffentlichen
+Daten — bewusst als fairer Vergleich zum Finetuning aufgesetzt: **dasselbe
+Basismodell** (Llama 3.2 3B Instruct, ohne LoRA), aber mit Domänenwissen im
+Prompt statt in den Gewichten.
 
-- **BM25** über die amtlichen `bezeichnung`-Texte der 40-60 Codes.
-- **Embeddings:** selbst berechnet mit einem offenen multilingualen Modell
-  (`multilingual-e5-base` o.ä.) über dieselben `bezeichnung`-Texte — bewusst
-  nicht MAIKAs Embeddings oder OpenAI-Embeddings, um IP-Fragen zu vermeiden
-  und zu zeigen, dass die Baseline selbst gebaut statt übernommen wurde.
-- **Kombination:** Reciprocal Rank Fusion (RRF) der beiden Rankings.
-- **Baseline-Vorhersage:** Top-1-Treffer aus dem kombinierten Ranking.
+1. **Retrieval:** Kandidaten-Codes für die Notiz ermitteln —
+   - BM25 über die amtlichen `bezeichnung`-Texte der 40-60 Codes
+   - Embeddings: selbst berechnet mit einem offenen multilingualen Modell
+     (`multilingual-e5-base` o.ä.) über dieselben `bezeichnung`-Texte —
+     bewusst nicht MAIKAs Embeddings oder OpenAI-Embeddings, um IP-Fragen zu
+     vermeiden und zu zeigen, dass die Baseline selbst gebaut statt
+     übernommen wurde
+   - Kombination via Reciprocal Rank Fusion (RRF), Top-N Kandidaten
+     (N deutlich größer als die erwartete Codeanzahl pro Notiz, z.B. 10-15)
+2. **Generation:** Notiz-Text + die Top-N Kandidaten (Code + amtliche
+   `bezeichnung`) werden dem unveränderten Basismodell als Kontext gegeben;
+   das Modell wählt daraus die zutreffenden Codes und gibt sie als Liste aus
+   — gleiches Antwortformat wie beim Finetune, damit die Auswertung
+   identisch läuft.
 
 ## Evaluation
 
-- Top-1- und Top-3-Accuracy von Finetune vs. RAG-Baseline auf dem
-  Haupt-Testset (gleicher Split für beide, fairer Vergleich).
-- Confusion Matrix / Analyse der häufigsten Verwechslungen (pro Ansatz).
+- Pro Notiz: Precision, Recall und F1 über die vorhergesagte vs.
+  tatsächliche Code-Menge, gemittelt über das Test-Set (Finetune vs.
+  RAG-Baseline, gleicher Split, gleiches Antwortformat).
+- Exact-Match-Rate (Anteil Notizen mit exakt korrekter Code-Menge) als
+  strengere Zusatzmetrik.
+- Analyse der häufigsten Fehlertypen (fälschlich hinzugefügte vs. fehlende
+  Codes) pro Ansatz.
 - Ergebnistabelle im README, im Stil von `sql-agent/evals/results.md`.
-- Qualitativer Abschnitt zu den Multi-Code-Bonus-Testfällen (kein
-  Accuracy-Wert, da andere Aufgabenstruktur — stattdessen Beispiel-Outputs
-  beider Ansätze gegenübergestellt).
 
 ## Demo
 
 Kleines Streamlit-Dashboard, im Stil von `sql-agent/src/app.py`:
-Freitext-Eingabe eines Behandlungsschritts → Vorhersage von Finetune und
-RAG-Baseline nebeneinander, inkl. Konfidenz/Top-3 je Ansatz.
+Freitext-Eingabe einer Behandlungsnotiz → vorhergesagte Code-Liste von
+Finetune und RAG-Baseline nebeneinander, inkl. der von der RAG-Baseline
+abgerufenen Kandidaten (macht den Unterschied "Wissen im Prompt vs. Wissen
+in den Gewichten" sichtbar — ähnlich wie die Guardrail-Badges bei
+`sql-agent`).
 
 ## Out of Scope (bewusst weggelassen)
 
 - Volle 221-Code-Abdeckung
-- Multi-Code-Extraktion als trainiertes Verhalten (nur als Bonus-Testset,
-  nicht als Trainingsziel)
+- Die Segmentierungs-Stufe, die ~50 Validierungsregeln und die
+  Ä1/Ä3/Ä5-Sonderlogik aus MAIKA (deterministische Nachbearbeitung, kein
+  ML-Bestandteil — würde die PyTorch/Finetuning-Kernaussage verwässern)
 - Echte Patienten-/Praxisdaten
 - Übernahme von MAIKA-Code, Liebold-Inhalten oder MAIKA-Embeddings
 - Auth, Deployment, Multi-Turn-Memory (analog zu den bewusst weggelassenen
