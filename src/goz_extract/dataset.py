@@ -16,14 +16,28 @@ from pathlib import Path
 from goz_extract.schema import NoteExample
 
 
-def load_golden_synth_fixtures(fixture_dir: Path) -> list[NoteExample]:
+def load_golden_synth_fixtures(
+    fixture_dir: Path, valid_codes: set[str] | None = None
+) -> list[NoteExample]:
+    """Lädt die Golden-Synth-Fixtures.
+
+    Wenn `valid_codes` übergeben wird, werden Fixtures übersprungen, deren
+    `expected_codes` nicht vollständig im kuratierten 55-Code-Label-Space
+    liegen (z.B. GOÄ-Codes wie "Ä6"/"Ä5000" oder Codes außerhalb der
+    Kategorien A__/C__). Sowohl RAG-Baseline als auch Finetune können
+    ohnehin nur Codes aus diesem Space vorhersagen - unbeantwortbare
+    Fixtures würden jede Eval-Metrik künstlich nach unten ziehen.
+    """
     examples = []
     for path in sorted(fixture_dir.glob("*synth*.json")):
         raw = json.loads(path.read_text(encoding="utf-8"))
+        expected_codes = raw["expected_codes"]
+        if valid_codes is not None and not set(expected_codes).issubset(valid_codes):
+            continue
         examples.append(
             NoteExample(
                 text=raw["input"],
-                expected_codes=raw["expected_codes"],
+                expected_codes=expected_codes,
                 source="golden_synth",
             )
         )

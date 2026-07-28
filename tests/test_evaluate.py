@@ -1,3 +1,5 @@
+import pytest
+
 from goz_extract.evaluate import evaluate_predictions, exact_match, precision_recall_f1
 
 
@@ -37,3 +39,8 @@ def test_evaluate_predictions_averages_across_pairs():
     assert result["precision"] == 0.5
     assert result["recall"] == 0.5
     assert result["exact_match_rate"] == 0.5
+
+
+def test_evaluate_predictions_raises_clear_error_on_empty_pairs():
+    with pytest.raises(ValueError, match="Keine Predictions"):
+        evaluate_predictions([])

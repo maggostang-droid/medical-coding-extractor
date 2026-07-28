@@ -5,6 +5,8 @@ __pycache__/
 *.pyc
 .env
 data/synthetic_notes.jsonl
+data/train.jsonl
+data/test.jsonl
 results/predictions_*.jsonl
 *.ipynb_checkpoints/
 adapters/

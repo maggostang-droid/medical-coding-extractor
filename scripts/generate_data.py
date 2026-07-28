@@ -40,7 +40,8 @@ def main() -> None:
     rng = random.Random(42)
     # Jeder Batch deckt CODES_PER_BATCH Codes ab -> um jeden Code im Schnitt
     # ~per_code mal in einem Batch zu haben, braucht es (len(codes)*per_code)/CODES_PER_BATCH
-    # Batches. Bei 55 Codes und per_code=6: ~83 Batches x 5 Notizen = ~415 Notizen.
+    # Batches. Bei 55 Codes und per_code=6: round(55*6/4) = 82 Batches x 5 Notizen
+    # = ~410 Notizen (verifiziert gegen die reale 410-Zeilen-Ausgabe).
     total_batches = max(1, round(len(codes) * args.per_code / CODES_PER_BATCH))
 
     all_examples = []

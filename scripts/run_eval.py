@@ -25,6 +25,12 @@ def main() -> None:
     metrics_by_approach = {}
     for approach, filename in APPROACH_FILES.items():
         path = args.results_dir / filename
+        if not path.exists():
+            raise FileNotFoundError(
+                f"{path} fehlt. Erst notebooks/train_and_infer.ipynb auf Colab "
+                f"laufen lassen und die Predictions-Dateien nach {args.results_dir} "
+                f"herunterladen, bevor run_eval.py läuft."
+            )
         rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
         pairs = [(row["predicted_codes"], row["expected_codes"]) for row in rows]
         metrics_by_approach[approach] = evaluate_predictions(pairs)

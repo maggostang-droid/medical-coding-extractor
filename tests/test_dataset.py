@@ -35,6 +35,22 @@ def test_load_golden_synth_fixtures_ignores_real_fixtures(tmp_path):
     assert examples[0].text == "Synthetische Notiz."
 
 
+def test_load_golden_synth_fixtures_skips_codes_outside_valid_set(tmp_path):
+    # Fixtures mit Codes außerhalb des kuratierten Label-Space (z.B. GOÄ-
+    # Codes wie "Ä6") dürfen nicht geladen werden - sie sind von keinem der
+    # beiden Ansätze beantwortbar und würden jede Eval-Metrik künstlich
+    # nach unten ziehen (siehe finale Review, Punkt 1).
+    in_space = {"input": "Notiz mit gültigen Codes.", "expected_codes": ["0090", "2080"]}
+    out_of_space = {"input": "Notiz mit GOÄ-Code.", "expected_codes": ["0090", "Ä6"]}
+    (tmp_path / "001_synth_in_space.json").write_text(json.dumps(in_space), encoding="utf-8")
+    (tmp_path / "002_synth_out_of_space.json").write_text(json.dumps(out_of_space), encoding="utf-8")
+
+    examples = load_golden_synth_fixtures(tmp_path, valid_codes={"0090", "2080"})
+
+    assert len(examples) == 1
+    assert examples[0].text == in_space["input"]
+
+
 def _make_examples(n: int, source: str = "generated") -> list[NoteExample]:
     return [
         NoteExample(text=f"Notiz {i}", expected_codes=["0090"], source=source)

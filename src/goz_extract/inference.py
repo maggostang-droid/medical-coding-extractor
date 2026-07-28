@@ -9,10 +9,20 @@ from goz_extract.prompting import build_extraction_prompt, parse_code_list_respo
 from goz_extract.schema import GozCode
 
 
-def load_model(model_id: str, adapter_path: str | None = None):
+def load_model(
+    model_id: str, adapter_path: str | None = None, torch_dtype=torch.float16
+):
+    """Lädt Modell + Tokenizer.
+
+    Default-dtype ist float16, nicht bfloat16: T4-GPUs (compute capability
+    7.5, die Colab-Stufe, auf die dieses Projekt zielt) unterstützen bf16
+    nicht nativ - es fällt sonst still auf langsame Emulation zurück, und
+    die bitsandbytes-Doku empfiehlt fp16 für Pre-Ampere-Karten. Aufrufer mit
+    besserer Hardware (Ampere+) können explizit torch.bfloat16 übergeben.
+    """
     tokenizer = AutoTokenizer.from_pretrained(model_id)
     model = AutoModelForCausalLM.from_pretrained(
-        model_id, torch_dtype=torch.bfloat16, device_map="auto"
+        model_id, torch_dtype=torch_dtype, device_map="auto"
     )
     if adapter_path is not None:
         model = PeftModel.from_pretrained(model, adapter_path)

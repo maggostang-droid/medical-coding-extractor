@@ -12,7 +12,7 @@ _INSTRUCTION = (
     "der Ziffern, ohne weiteren Text."
 )
 
-_CODE_PATTERN = re.compile(r"Ä?\d{3,4}")
+_CODE_PATTERN = re.compile(r"\bÄ?\d{3,4}\b")
 
 
 def build_extraction_prompt(note_text: str, candidates: list[GozCode] | None = None) -> str:

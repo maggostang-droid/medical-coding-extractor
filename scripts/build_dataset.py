@@ -5,6 +5,7 @@ Aufruf:
     .venv/Scripts/python.exe scripts/build_dataset.py \
         --generated data/synthetic_notes.jsonl \
         --golden-synth-dir "C:/Users/Marco/Downloads/dentist-main/dentist-main/tests/fixtures/golden_single_v2" \
+        --codes data/goz_codes.json \
         --out-dir data/
 """
 import argparse
@@ -12,13 +13,14 @@ import json
 from pathlib import Path
 
 from goz_extract.dataset import load_golden_synth_fixtures, split_dataset
-from goz_extract.schema import NoteExample
+from goz_extract.schema import GozCode, NoteExample
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--generated", required=True, type=Path)
     parser.add_argument("--golden-synth-dir", required=True, type=Path)
+    parser.add_argument("--codes", required=True, type=Path)
     parser.add_argument("--out-dir", required=True, type=Path)
     parser.add_argument("--test-fraction", type=float, default=0.2)
     parser.add_argument("--seed", type=int, default=42)
@@ -29,9 +31,15 @@ def main() -> None:
         for line in args.generated.read_text(encoding="utf-8").splitlines()
         if line.strip()
     ]
+    codes = [GozCode(**c) for c in json.loads(args.codes.read_text(encoding="utf-8"))]
+    valid_codes = {c.goz_nr for c in codes}
     # load_golden_synth_fixtures filtert real_-Fixtures bereits beim Einlesen
-    # aus (Glob-Pattern "*synth*.json") - siehe dataset.py.
-    golden_synth = load_golden_synth_fixtures(args.golden_synth_dir)
+    # aus (Glob-Pattern "*synth*.json") - siehe dataset.py. valid_codes
+    # filtert zusätzlich Fixtures raus, deren erwartete Codes außerhalb des
+    # kuratierten 55-Code-Label-Space liegen (z.B. GOÄ-Codes) - die wären
+    # von keinem der beiden Ansätze beantwortbar und würden die Metriken
+    # künstlich drücken.
+    golden_synth = load_golden_synth_fixtures(args.golden_synth_dir, valid_codes=valid_codes)
 
     train, test = split_dataset(generated + golden_synth, args.test_fraction, args.seed)
 

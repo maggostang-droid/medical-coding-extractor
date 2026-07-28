@@ -21,6 +21,9 @@ Leistungen" + "Konservierende Leistungen" der amtlichen Gebührenordnung).
 
 ## Ergebnisse
 
+⏳ Training läuft noch nicht — siehe `notebooks/train_and_infer.ipynb`.
+Tabelle wird nach dem Colab-Lauf ergänzt.
+
 <!-- Tabelle aus results/results.md einfügen, sobald Task 10+11 gelaufen sind -->
 
 ## Setup

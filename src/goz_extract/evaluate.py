@@ -22,6 +22,8 @@ def exact_match(predicted: list[str], expected: list[str]) -> bool:
 
 
 def evaluate_predictions(pairs: list[tuple[list[str], list[str]]]) -> dict[str, float]:
+    if not pairs:
+        raise ValueError("Keine Predictions zum Auswerten")
     metrics = [precision_recall_f1(predicted, expected) for predicted, expected in pairs]
     n = len(metrics)
     exact_matches = sum(exact_match(predicted, expected) for predicted, expected in pairs)

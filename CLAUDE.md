@@ -27,4 +27,14 @@ selbst generierte Trainingsdaten. Siehe Design-Spec, Abschnitt
 *Diesen Abschnitt aktuell halten, sobald ein Task aus dem Implementierungsplan
 abgeschlossen ist.*
 
-- ⬜ Projekt-Grundgerüst
+- ✅ Alle 13 geplanten Tasks implementiert und einzeln review-clean (Curation,
+  Datengenerierung, Dataset-Assembly, Retrieval, Prompting, Evaluation,
+  Inferenz-Loading, Colab-Notebook, Eval-Report, Streamlit-Demo, README).
+  Zusätzlich eine finale Whole-Branch-Review durchlaufen und deren Findings
+  gefixt (u.a. Golden-Fixtures außerhalb des 55-Code-Label-Space rausgefiltert,
+  T4-taugliche dtypes, Speicher-Fix im Notebook und in `app.py`).
+- ✅ `pytest` grün, kein GPU/Colab nötig für die lokale Test-Suite.
+- ⬜ **Einziger noch offener Schritt:** `notebooks/train_and_infer.ipynb` auf
+  Colab laufen lassen (Task 10-13 im Plan), um die echten Ergebnisse
+  (RAG-Baseline vs. LoRA-Finetune) zu erzeugen und `results/results.md` +
+  README-Ergebnistabelle zu befüllen.
