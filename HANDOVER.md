@@ -1,6 +1,6 @@
 # Handover — goz-finetune-vs-rag
 
-**Stand:** 2026-07-28, nach Merge in `master` (Commit `b030681`).
+**Stand:** 2026-07-28, nach Merge in `master`, aktuellster Commit `7bc7cd7`.
 **Für wen:** Ein neuer Agent (oder du selbst in einer neuen Session), der hier
 weitermacht, ohne den bisherigen Chatverlauf zu kennen.
 
@@ -25,23 +25,25 @@ Trainingslauf mit allen Fixes steht noch aus**.
 
 ## Sofort-nächster Schritt
 
-Marco startet (oder hat gerade gestartet) eine **frische Colab-Session**:
+Marco ist mitten in einer Colab-Session (RAG-Baseline bereits gelaufen,
+Trainings-Zelle wurde mehrfach live gepatcht). **Die Trainings-Zelle im
+Repo-Notebook ist jetzt grundlegend anders als das, was ursprünglich lief**
+(siehe "Was gerade live gefixt wurde" unten, dritter Punkt) — er muss die
+aktuelle Zellen-Version (aus `notebooks/train_and_infer.ipynb`, Abschnitt 3)
+in seine laufende Session einfügen und ausführen. Falls die Session
+inzwischen neu gestartet wurde: einfach das ganze Notebook frisch hochladen
+(`notebooks/train_and_infer.ipynb` hat alle Fixes bereits committed) +
+`goz-extract-src.zip` aus dem Repo-Root bei der Upload-Zelle hochladen
+(ebenfalls aktuell), dann normal von oben durchlaufen.
 
-1. Bestehende Colab-Runtime trennen/löschen (die alte Session ist voller
-   Live-Patches, die nicht mehr gebraucht werden)
-2. `notebooks/train_and_infer.ipynb` frisch hochladen (enthält bereits alle
-   Fixes, siehe unten)
-3. Bei der Upload-Zelle: `goz-extract-src.zip` aus dem Repo-Root hochladen
-   (ebenfalls bereits mit allen Fixes neu gebaut, gitignored, liegt lokal)
-4. Zellen der Reihe nach durchlaufen (HF-Token erneut in `notebook_login()`
-   einfügen — Session-scoped, die Meta-Lizenz-Freigabe selbst gilt weiter)
-
-**Wenn der Lauf durch ist:** Ergebnisse herunterladen (siehe Anleitung im
-Notebook, Abschnitt 5), lokal nach `results/` bzw. `adapters/` legen,
-`scripts/run_eval.py --results-dir results/` laufen lassen (nutze dafür
-`.venv-data`, siehe unten — kein Torch nötig), und **die Zahlen kritisch
-prüfen** (siehe "Was zu erwarten ist" unten) bevor du sie als Endergebnis
-behandelst oder ins README schreibst.
+**Wenn der Trainingslauf durch ist:** Ergebnisse herunterladen (siehe
+Anleitung im Notebook, Abschnitt 5), lokal nach `results/` bzw. `adapters/`
+legen (Downloads/Zip-Struktur vorher prüfen — beim ersten Mal landete der
+Adapter-Ordner doppelt verschachtelt, siehe "Bekannte Stolperfallen beim
+Download" unten), `scripts/run_eval.py --results-dir results/` laufen
+lassen (nutze dafür `.venv-data`, siehe unten — kein Torch nötig), und
+**die Zahlen kritisch prüfen** (siehe "Was zu erwarten ist" unten) bevor du
+sie als Endergebnis behandelst oder ins README schreibst.
 
 ## Was gerade live gefixt wurde (und warum)
 
@@ -54,21 +56,45 @@ offensichtlich kaputte Ergebnisse:
   einzelnen Code `"2300"` voraus, unabhängig vom Inhalt (Mode Collapse) →
   F1 0.03 — deutlich schlechter als die Baseline
 
-Committete Fixes dafür (Commit `b030681`):
+Committete Fixes dafür:
 
-1. **`src/goz_extract/prompting.py`** — `_INSTRUCTION` verschärft: explizit
-   "nur zutreffende Codes, nicht jeden Kandidaten, keine Erklärung, keine
-   Wiederholung der Notiz". Zielt auf das RAG-Überprediction-Problem.
-2. **`notebooks/train_and_infer.ipynb`, Trainings-Zelle (Abschnitt 3)** —
-   `DataCollatorForCompletionOnlyLM` ergänzt, damit der Loss nur auf der
-   Antwort berechnet wird, nicht auf der (bei allen 329 Beispielen fast
-   identischen) Instruktion+Notiz davor. Das ist die wahrscheinlichste
-   Ursache des Mode Collapse: bei nur 63 Trainingsschritten dominierte der
-   Loss auf dem sich wiederholenden Prompt-Teil, das eigentliche Lernsignal
-   für die Code-Auswahl ging unter.
+1. **`src/goz_extract/prompting.py`** (Commit `b030681`) — `_INSTRUCTION`
+   verschärft: explizit "nur zutreffende Codes, nicht jeden Kandidaten,
+   keine Erklärung, keine Wiederholung der Notiz". Zielt auf das
+   RAG-Überprediction-Problem. **Noch nicht verifiziert.**
+2. **Completion-Only-Loss fürs Training** — das war eine kleine Odyssee
+   durch drei Anläufe, weil `trl` auf Colab in einer viel neueren Version
+   installiert ist (1.9.2) als alles, was ich zuverlässig kenne:
+   - Anlauf 1 (Commit `b030681`): `DataCollatorForCompletionOnlyLM` aus
+     `trl` — **existiert in trl>=1.x nicht mehr** (`ImportError`, live auf
+     Colab bestätigt).
+   - Anlauf 2 (Commit `1cf8f77`): TRLs Nachfolge-Mechanismus
+     `SFTConfig(assistant_only_loss=True)` + Dataset mit `"messages"`-Feld
+     statt geflachtem `"text"`-String — **scheiterte ebenfalls**, weil
+     dieses Feature `{% generation %}`-Marker im Jinja-Chat-Template
+     braucht, die Llama 3.2s Standard-Template nicht hat, und TRL das
+     Template nicht automatisch patchen kann (`ValueError`, live auf Colab
+     bestätigt).
+   - Anlauf 3 (Commit `7bc7cd7`, **aktueller Stand**): TRLs High-Level-API
+     komplett umgangen. Labels werden jetzt manuell maskiert (Prompt-Teil
+     inkl. Chat-Template-Boilerplate auf `-100` gesetzt, nur die
+     Ziffern-Antwort trägt zum Loss bei) und mit dem einfacheren, stabilen
+     `transformers.Trainer` + `peft.get_peft_model` trainiert statt
+     `SFTTrainer`. Siehe `notebooks/train_and_infer.ipynb`, Abschnitt 3,
+     für die Implementierung inkl. Kommentare.
 
-**Diese Fixes wurden noch NICHT gegen einen echten Trainingslauf
-verifiziert.** Das ist der Zweck des "Sofort-nächster-Schritt"-Laufs oben.
+   Die zugrundeliegende Diagnose bleibt unverändert: bei nur 63
+   Trainingsschritten auf 329 fast identisch formulierten Prompts dominierte
+   ohne Completion-Masking der Loss auf dem sich wiederholenden
+   Prompt-Teil, das Lernsignal für die eigentliche Code-Auswahl ging unter.
+
+**Anlauf 3 wurde noch NICHT gegen einen echten Trainingslauf verifiziert**
+— das ist der Zweck des "Sofort-nächster-Schritt"-Laufs oben. Falls auch
+der manuelle `Trainer`-Ansatz an einer weiteren Versions-Eigenheit scheitert
+(z.B. `prepare_model_for_kbit_training`/`get_peft_model`-Signatur hat sich
+geändert): dieselbe Introspektions-Strategie wie bei den TRL-Fehlern
+anwenden (`inspect.signature(...)`, `dir(...)`, Docstring lesen) statt zu
+raten — hat bisher jedes Mal den echten Grund gefunden.
 
 ### Was zu erwarten ist / wie du die neuen Zahlen einordnest
 
@@ -91,6 +117,18 @@ verifiziert.** Das ist der Zweck des "Sofort-nächster-Schritt"-Laufs oben.
 - Vergiss nicht: das Test-Set hat nur 82 Notizen (nach dem Label-Space-Fix,
   siehe unten) — bei so kleinen Zahlen schwankt F1 stark zwischen einzelnen
   Beispielen, nicht überinterpretieren.
+
+## Bekannte Stolperfalle beim Artefakte-Download
+
+Der `adapter.zip` (gebaut via `!zip -r adapter.zip
+adapters/goz-extract-llama32-3b`) entpackt sich relativ zum aktuellen
+Ordner — wenn man ihn in einen bereits existierenden lokalen `adapters/`-
+Ordner entpackt, landet er doppelt verschachtelt
+(`adapters/adapters/goz-extract-llama32-3b/...`). Passiert ist das schon
+einmal, gefixt durch `mv adapters/adapters/goz-extract-llama32-3b
+adapters/` + `rmdir adapters/adapters`. Nach dem Entpacken kurz prüfen,
+dass `adapters/goz-extract-llama32-3b/adapter_config.json` direkt (nicht
+noch eine Ebene tiefer) existiert, bevor `run_eval.py`/`app.py` es laden.
 
 ## Andere im Colab-Debugging gefundene und gefixte Bugs
 
