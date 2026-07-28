@@ -9,3 +9,4 @@ results/predictions_*.jsonl
 *.ipynb_checkpoints/
 adapters/
 .pytest_cache/
+*.egg-info/
