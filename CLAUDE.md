@@ -22,6 +22,41 @@ selbst generierte Trainingsdaten. Siehe Design-Spec, Abschnitt
 - GPU-Schritte (Training, Modell-Inferenz) laufen auf Colab, nicht lokal —
   siehe `notebooks/train_and_infer.ipynb`.
 
+## Commands
+
+```bash
+python -m venv .venv
+.venv/Scripts/python.exe -m pip install -e ".[dev]"
+cp .env.example .env  # ANTHROPIC_API_KEY eintragen
+
+.venv/Scripts/python.exe -m pytest tests/ -v                    # komplette Test-Suite, kein GPU/Colab nötig
+.venv/Scripts/python.exe -m pytest tests/test_dataset.py::test_x # einzelner Test
+
+.venv/Scripts/python.exe scripts/curate_codes.py    # 1. GOZ-Codes kuratieren
+.venv/Scripts/python.exe scripts/generate_data.py   # 2. synthetische Trainingsdaten generieren
+.venv/Scripts/python.exe scripts/build_dataset.py   # 3. Dataset zusammenbauen
+.venv/Scripts/python.exe scripts/run_eval.py        # Evaluation laufen lassen
+
+.venv/Scripts/python.exe -m streamlit run app.py    # Demo-App (braucht Adapter aus Colab unter adapters/)
+```
+
+Kein Linter konfiguriert.
+
+## Architektur
+
+- `src/goz_extract/` — installierbares Package: `curate.py`, `data_generation.py`,
+  `dataset.py`, `evaluate.py`, `inference.py`, `prompting.py`, `report.py`,
+  `retrieval.py`, `schema.py`
+- `scripts/` — CLI-Einstiegspunkte, die die Package-Funktionen aufrufen
+  (Curation → Datengenerierung → Dataset-Assembly → Eval)
+- `data/goz_codes.json` — kuratierte 55-Code-Label-Liste (Teilmenge der
+  amtlichen GOZ-Codeliste)
+- `notebooks/train_and_infer.ipynb` — Colab-only: LoRA-Training + Inferenz
+  beider Ansätze (RAG-Baseline vs. LoRA-Finetune) auf Llama-3.2-3B-Instruct
+- `app.py` — Streamlit-Demo (Root-Level, nicht unter `src/`)
+- `tests/` — ein Testmodul pro Package-Modul, plus `test_dataset_integrity.py`
+  und `test_smoke.py`
+
 ## Aktueller Stand
 
 *Diesen Abschnitt aktuell halten, sobald ein Task aus dem Implementierungsplan
