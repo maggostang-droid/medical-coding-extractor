@@ -1,2 +1,11 @@
 .worktrees/
 .superpowers/
+.venv/
+__pycache__/
+*.pyc
+.env
+data/synthetic_notes.jsonl
+results/predictions_*.jsonl
+*.ipynb_checkpoints/
+adapters/
+.pytest_cache/

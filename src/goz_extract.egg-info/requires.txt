@@ -1,0 +1,16 @@
+pydantic>=2.6
+langchain>=0.2
+langchain-anthropic>=0.1
+python-dotenv>=1.0
+rank-bm25>=0.2.2
+sentence-transformers>=3.0
+numpy>=1.26
+torch>=2.2
+transformers>=4.44
+peft>=0.12
+trl>=0.9
+datasets>=2.20
+streamlit>=1.37
+
+[dev]
+pytest>=8.0

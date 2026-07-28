@@ -1,0 +1,20 @@
+Metadata-Version: 2.4
+Name: goz-extract
+Version: 0.1.0
+Summary: GOZ-Code-Extraktion aus Behandlungsnotizen: LoRA-Finetuning vs. RAG-Baseline
+Requires-Python: >=3.11
+Requires-Dist: pydantic>=2.6
+Requires-Dist: langchain>=0.2
+Requires-Dist: langchain-anthropic>=0.1
+Requires-Dist: python-dotenv>=1.0
+Requires-Dist: rank-bm25>=0.2.2
+Requires-Dist: sentence-transformers>=3.0
+Requires-Dist: numpy>=1.26
+Requires-Dist: torch>=2.2
+Requires-Dist: transformers>=4.44
+Requires-Dist: peft>=0.12
+Requires-Dist: trl>=0.9
+Requires-Dist: datasets>=2.20
+Requires-Dist: streamlit>=1.37
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0; extra == "dev"
