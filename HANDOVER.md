@@ -1,6 +1,10 @@
 # Handover — goz-finetune-vs-rag
 
-**Stand:** 2026-07-28, nach Merge in `master`, aktuellster Commit `7bc7cd7`.
+**Stand:** 2026-07-28, nach Merge in `master`, aktuellster Commit `476ac36`.
+Trainingslauf (manueller `Trainer`-Ansatz) ist auf Colab erfolgreich
+durchgelaufen (kein OOM, kein Fehler mehr) — Marco ist gerade beim
+Finetune-Inferenz-Schritt.
+
 **Für wen:** Ein neuer Agent (oder du selbst in einer neuen Session), der hier
 weitermacht, ohne den bisherigen Chatverlauf zu kennen.
 
@@ -35,6 +39,19 @@ inzwischen neu gestartet wurde: einfach das ganze Notebook frisch hochladen
 (`notebooks/train_and_infer.ipynb` hat alle Fixes bereits committed) +
 `goz-extract-src.zip` aus dem Repo-Root bei der Upload-Zelle hochladen
 (ebenfalls aktuell), dann normal von oben durchlaufen.
+
+**Wichtig, seit dem kritischen Review vom 2026-07-28 (siehe Abschnitt unten):**
+Abschnitt 3 hat jetzt eine zusätzliche Zelle direkt nach der Tokenisierung
+(vor `TrainingArguments`/`trainer.train()`), die die Completion-Masking-Grenze
+an 10 Stichproben verifiziert und mit einer klaren Fehlermeldung abbricht,
+falls sie nicht exakt sitzt. **Falls diese Assertion fehlschlägt: nicht den
+Assert entfernen und weiterlaufen lassen** — das würde denselben
+Mode-Collapse-Bug reproduzieren, den Anlauf 3 eigentlich beheben soll.
+Stattdessen `tokenize_with_completion_mask` debuggen (siehe Markdown-Zelle
+direkt danach im Notebook). `goz-extract-src.zip` muss vor dem Hochladen neu
+gebaut werden, falls `src/goz_extract/prompting.py` oder `retrieval.py`
+seit dem letzten Build geändert wurden (siehe "Lokales Setup" unten) —
+beide haben sich in diesem Review geändert.
 
 **Wenn der Trainingslauf durch ist:** Ergebnisse herunterladen (siehe
 Anleitung im Notebook, Abschnitt 5), lokal nach `results/` bzw. `adapters/`
@@ -143,12 +160,12 @@ auftreten:
   `tokenizer(text, return_tensors="pt")` gehen (liefert immer
   `BatchEncoding`), mit `**inputs` an `generate()` übergeben. Versions-
   unabhängig, sollte halten.
-- **`peft`/`torchao`-Versionskonflikt**: Colabs vorinstalliertes `torchao`
-  (0.10.0) war zu alt für die von `!pip install trl` gezogene `peft`-
-  Version (verlangt >0.16.0), `PeftModel.from_pretrained(...)` crashte mit
-  `ImportError`. Fix war nur ein Live-Kommando
-  (`!pip install -q -U torchao`), **nicht** ins Notebook eingebaut (siehe
-  "Bewusst nicht gefixt" unten, warum).
+- **`peft`/`torchao`-Versionskonflikt** (Commit `476ac36`): Colabs
+  vorinstalliertes `torchao` (0.10.0) ist zu alt für die von `!pip install
+  trl` gezogene `peft`-Version (verlangt >0.16.0), `PeftModel.from_pretrained(...)`
+  crasht sonst mit `ImportError`. Trat zweimal auf verschiedenen Runtimes
+  auf — damit kein Rate-Pin mehr, sondern ein bestätigt reproduzierbarer
+  Fix. `!pip install -q -U torchao` ist jetzt fest in Zelle 1 (Setup).
 - **`notebook_login()`**: nimmt den Token NICHT als Argument entgegen
   (`notebook_login("hf_...")` wirft `TypeError`) — Zelle ohne Argument
   aufrufen, Token ins dann erscheinende Eingabefeld einfügen.
@@ -161,8 +178,11 @@ auftreten:
   Versionen (`transformers 5.14.1`, `torch 2.13.0`) deutlich neuer sind als
   alles, was zuverlässig bekannt ist (dieses Projekt läuft in einer Zukunft
   jenseits des Wissensstands) — ein geratener Pin hätte eher neue
-  Inkompatibilitäten riskiert als welche gelöst. Der `torchao`-Fix wurde
-  aus demselben Grund nur live gemacht, nicht committed.
+  Inkompatibilitäten riskiert als welche gelöst. Das gilt weiterhin für
+  `transformers`/`trl`/`torch` selbst; der `torchao`-Fix ist davon eine
+  bewusste Ausnahme, weil er kein Rate-Pin mehr ist, sondern zweimal live
+  reproduziert und bestätigt wurde (siehe oben, jetzt in Zelle 1
+  eingebaut).
 - **`device_map="auto"`-Offloading auf CPU** (einmal während des RAG-
   Baseline-Laufs aufgetreten, per manuellem `.to("cuda:0")` umgangen): trat
   vermutlich nur wegen Speicherdrucks durch mehrfaches Neuladen während des
