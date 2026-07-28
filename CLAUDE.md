@@ -59,17 +59,22 @@ Kein Linter konfiguriert.
 
 ## Aktueller Stand
 
-*Diesen Abschnitt aktuell halten, sobald ein Task aus dem Implementierungsplan
-abgeschlossen ist.*
+*Diesen Abschnitt aktuell halten. Für neue Sessions/Agenten: lies zuerst
+`HANDOVER.md` im Repo-Root — die enthält den detaillierten Stand, bekannte
+Fallstricke auf dieser Maschine und den genauen nächsten Schritt. Dieser
+Abschnitt hier ist nur die Kurzfassung.*
 
-- ✅ Alle 13 geplanten Tasks implementiert und einzeln review-clean (Curation,
-  Datengenerierung, Dataset-Assembly, Retrieval, Prompting, Evaluation,
-  Inferenz-Loading, Colab-Notebook, Eval-Report, Streamlit-Demo, README).
-  Zusätzlich eine finale Whole-Branch-Review durchlaufen und deren Findings
-  gefixt (u.a. Golden-Fixtures außerhalb des 55-Code-Label-Space rausgefiltert,
-  T4-taugliche dtypes, Speicher-Fix im Notebook und in `app.py`).
-- ✅ `pytest` grün, kein GPU/Colab nötig für die lokale Test-Suite.
-- ⬜ **Einziger noch offener Schritt:** `notebooks/train_and_infer.ipynb` auf
-  Colab laufen lassen (Task 10-13 im Plan), um die echten Ergebnisse
-  (RAG-Baseline vs. LoRA-Finetune) zu erzeugen und `results/results.md` +
-  README-Ergebnistabelle zu befüllen.
+- ✅ Alle 13 geplanten Tasks implementiert, einzeln review-clean, finale
+  Whole-Branch-Review durchlaufen und deren Findings gefixt. In `master`
+  gemergt, `pytest` grün (kein GPU/Colab nötig für die lokale Test-Suite).
+- 🟡 **Colab-Trainingslauf läuft gerade / steht kurz bevor.** Der erste
+  vollständige Durchlauf hatte zwei echte Qualitätsbugs (RAG-Baseline gab
+  zu viele Kandidaten zurück, LoRA-Finetune kollabierte auf eine einzelne
+  Vorhersage) — beide sind im Code gefixt (Completion-Only-Loss beim
+  Training, schärfere Extraktions-Instruktion), aber **noch nicht mit
+  einem echten Lauf verifiziert**. Details, exakte nächste Schritte und
+  mehrere gelöste Colab-Umgebungsbugs (transformers-Versions-Inkompatibilität,
+  torchao-Konflikt) stehen in `HANDOVER.md`.
+- ⬜ Danach: `results/results.md` + README-Ergebnistabelle mit echten Zahlen
+  befüllen, Streamlit-Demo (`app.py`) erstmals im Browser testen, IP-
+  Disclosure-Frage zur Design-Spec klären, Repo auf GitHub pushen.
