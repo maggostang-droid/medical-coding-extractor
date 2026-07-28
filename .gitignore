@@ -12,3 +12,4 @@ results/predictions_*.jsonl
 adapters/
 .pytest_cache/
 *.egg-info/
+goz-extract-src.zip
