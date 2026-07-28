@@ -40,11 +40,21 @@ def generate_codes(
 ) -> list[str]:
     prompt = build_extraction_prompt(note_text, candidates=candidates)
     messages = [{"role": "user", "content": prompt}]
-    inputs = tokenizer.apply_chat_template(
-        messages, add_generation_prompt=True, return_tensors="pt"
-    ).to(model.device)
+    # tokenize=False + separater tokenizer(...)-Aufruf statt
+    # apply_chat_template(..., return_tensors="pt") direkt: letzteres liefert
+    # je nach transformers-Version einen reinen Tensor oder ein
+    # BatchEncoding-Objekt zurück, was model.generate() unvorhersehbar
+    # crashen lässt (fehlender .shape-Zugriff). Der Umweg über
+    # tokenizer(text, return_tensors="pt") liefert immer ein BatchEncoding,
+    # entpackt via **inputs - robust gegenüber der transformers-Version.
+    prompt_text = tokenizer.apply_chat_template(
+        messages, tokenize=False, add_generation_prompt=True
+    )
+    inputs = tokenizer(prompt_text, return_tensors="pt").to(model.device)
 
     with torch.no_grad():
-        output_ids = model.generate(inputs, max_new_tokens=max_new_tokens, do_sample=False)
-    generated = tokenizer.decode(output_ids[0][inputs.shape[1]:], skip_special_tokens=True)
+        output_ids = model.generate(**inputs, max_new_tokens=max_new_tokens, do_sample=False)
+    generated = tokenizer.decode(
+        output_ids[0][inputs["input_ids"].shape[1]:], skip_special_tokens=True
+    )
     return parse_code_list_response(generated, valid_codes)
