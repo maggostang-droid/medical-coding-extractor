@@ -9,8 +9,10 @@ messbare Antwort auf "schlägt Finetuning RAG?".
 
 Aus einer Behandlungsnotiz (kann mehrere Behandlungsschritte einer Sitzung
 beschreiben) werden alle zutreffenden GOZ-Ziffern extrahiert (Multi-Label),
-aus einem Label-Space von 55 Codes (Kategorien "Allgemeine zahnärztliche
-Leistungen" + "Konservierende Leistungen" der amtlichen Gebührenordnung).
+aus einem Label-Space von 10 Kern-Codes (häufigste Alltagsleistungen aus den
+Kategorien "Allgemeine zahnärztliche Leistungen" + "Konservierende
+Leistungen" der amtlichen Gebührenordnung, reduziert aus einer ursprünglich
+55-Code-Liste - siehe HANDOVER.md).
 
 ## Zwei Wege, Domänenwissen einzubringen
 
@@ -54,7 +56,9 @@ Abschnitt "Datenherkunft & IP-Abgrenzung".
 
 ## Limitierungen
 
-- Label-Space auf 55 Alltags-Codes begrenzt (nicht die vollen 221 GOZ-Codes)
+- Label-Space auf 10 Alltags-Codes begrenzt (nicht die vollen 221 GOZ-Codes) -
+  bewusste Reduktion, um mit der kleinen synthetischen Datenmenge genug
+  Beispiele pro Code fürs Finetuning zu haben
 - Trainingsdaten sind synthetisch (LLM-generiert), kein Abgleich mit realen
   Praxisfällen im großen Stil
 - RAG-Baseline nutzt eine vereinfachte Retrieval-Pipeline ohne die

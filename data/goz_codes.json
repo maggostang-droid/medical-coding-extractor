@@ -1,222 +1,52 @@
 [
   {
-    "goz_nr": "0010",
-    "bezeichnung": "Eingehende Untersuchung zur Feststellung von Zahn-, Mund- und Kiefererkrankungen einschließlich Erhebung des Parodontalbefundes sowie Aufzeichnung des Befundes"
-  },
-  {
-    "goz_nr": "0030",
-    "bezeichnung": "Aufstellung eines schriftlichen Heil- und Kostenplans nach Befundaufnahme und gegebenenfalls Auswertung von Modellen"
-  },
-  {
-    "goz_nr": "0050",
-    "bezeichnung": "Abformung oder Teilabformung eines Kiefers für ein Situationsmodell, einschließlich Auswertung zur Diagnose oder Planung"
-  },
-  {
-    "goz_nr": "0060",
-    "bezeichnung": "Abformung beider Kiefer für Situationsmodelle und einfache Bissfixierung, einschließlich Auswertung zur Diagnose oder Planung"
-  },
-  {
     "goz_nr": "0065",
-    "bezeichnung": "Optisch-elektronische Abformung einschließlich vorbereitender Maßnahmen, einfache digitale Bissregistrierung und Archivierung, je Kieferhälfte oder Frontzahnbereich"
+    "bezeichnung": "Optisch-elektronische Abformung einschließlich vorbereitender Maßnahmen, einfache digitale Bissregistrierung und Archivierung, je Kieferhälfte oder Frontzahnbereich",
+    "erweiterte_beschreibung": "Digitaler Abdruck mit Intraoralscanner statt herkömmlicher Abformmasse, inklusive Vorbereitung und Speicherung der Daten. Umgangssprachlich: Digitaler Abdruck, Intraoralscan, IOS, digitale Abformung."
   },
   {
     "goz_nr": "0070",
-    "bezeichnung": "Vitalitätsprüfung eines Zahnes oder mehrerer Zähne einschließlich Vergleichstest, je Sitzung"
-  },
-  {
-    "goz_nr": "0080",
-    "bezeichnung": "Intraorale Oberflächenanästhesie, je Kieferhälfte oder Frontzahnbereich"
+    "bezeichnung": "Vitalitätsprüfung eines Zahnes oder mehrerer Zähne einschließlich Vergleichstest, je Sitzung",
+    "erweiterte_beschreibung": "Prüfung ob ein Zahn noch lebt (vitaler Nerv) mittels Kälte- oder Wärmetest, meist im Vergleich zu gesunden Nachbarzähnen. Umgangssprachlich: Vitalitätstest, Kältetest, Sensibilitätsprüfung, Pulpatest."
   },
   {
     "goz_nr": "0090",
-    "bezeichnung": "Intraorale Infiltrationsanästhesie"
+    "bezeichnung": "Intraorale Infiltrationsanästhesie",
+    "erweiterte_beschreibung": "Örtliche Betäubung durch Einspritzen des Betäubungsmittels direkt neben den zu behandelnden Zahn. Umgangssprachlich: Spritze, lokale Anästhesie, Infiltration, Betäubung."
   },
   {
     "goz_nr": "0100",
-    "bezeichnung": "Intraorale Leitungsanästhesie"
-  },
-  {
-    "goz_nr": "0110",
-    "bezeichnung": "Zuschlag für die Anwendung eines Operationsmikroskops bei den Leistungen nach den Nummern 2195, 2330, 2340, 2360, 2410, 2440, 3020, 3030, 3040, 3045, 3060, 3110, 3120, 3190, 3200, 4090, 4100, 4130, 4133, 9100, 9110, 9120, 9130 und 9170"
-  },
-  {
-    "goz_nr": "0120",
-    "bezeichnung": "Zuschlag für die Anwendung eines Lasers bei den Leistungen nach den Nummern 2410, 3070, 3080, 3210, 3240, 4080, 4090, 4100, 4130, 4133 und 9160"
-  },
-  {
-    "goz_nr": "2000",
-    "bezeichnung": "Versiegelung von kariesfreien Zahnfissuren mit aushärtenden Kunststoffen, auch Glattflächenversiegelung, je Zahn"
-  },
-  {
-    "goz_nr": "2010",
-    "bezeichnung": "Behandlung überempfindlicher Zahnflächen, je Kiefer"
-  },
-  {
-    "goz_nr": "2020",
-    "bezeichnung": "Temporärer speicheldichter Verschluss einer Kavität"
+    "bezeichnung": "Intraorale Leitungsanästhesie",
+    "erweiterte_beschreibung": "Örtliche Betäubung durch Ausschalten eines größeren Nervenastes, wodurch mehrere Zähne gleichzeitig betäubt werden. Umgangssprachlich: Leitungsanästhesie, Blockadeanästhesie, Mandibularanästhesie, Stammanästhesie."
   },
   {
     "goz_nr": "2030",
-    "bezeichnung": "Besondere Maßnahmen beim Präparieren oder Füllen von Kavitäten (z. B. Separieren, Beseitigen störenden Zahnfleisches, Stillung einer übermäßigen Papillenblutung), je Kieferhälfte oder Frontzahnbereich"
+    "bezeichnung": "Besondere Maßnahmen beim Präparieren oder Füllen von Kavitäten (z. B. Separieren, Beseitigen störenden Zahnfleisches, Stillung einer übermäßigen Papillenblutung), je Kieferhälfte oder Frontzahnbereich",
+    "erweiterte_beschreibung": "Zusätzliche Maßnahmen bei schwierigen Füllungen wie Zähne auseinanderdrängen, störendes Zahnfleisch entfernen oder starke Zahnfleischblutung stoppen. Umgangssprachlich: Separieren, Blutstillung, Zahnfleischmanagement, Präparationsmaßnahmen."
   },
   {
     "goz_nr": "2040",
-    "bezeichnung": "Anlegen von Spanngummi, je Kieferhälfte oder Frontzahnbereich"
-  },
-  {
-    "goz_nr": "2050",
-    "bezeichnung": "Präparieren einer Kavität und Restauration mit plastischem Füllungsmaterial einschließlich Unterfüllung, Anlegen einer Matrize oder Benutzen anderer Hilfsmittel zur Formung der Füllung, einflächig"
+    "bezeichnung": "Anlegen von Spanngummi, je Kieferhälfte oder Frontzahnbereich",
+    "erweiterte_beschreibung": "Anlegen eines Gummituchs zur Isolierung der Zähne von Speichel und Feuchtigkeit während der Behandlung. Umgangssprachlich: Kofferdam, Spanngummi, Gummidam, Trockenlegung."
   },
   {
     "goz_nr": "2060",
-    "bezeichnung": "Präparieren einer Kavität und Restauration mit Kompositmaterialien, in Adhäsivtechnik (Konditionieren), einflächig, ggf. einschließlich Mehrschichttechnik, einschließlich Polieren, ggf. einschließlich Verwendung von Inserts"
-  },
-  {
-    "goz_nr": "2070",
-    "bezeichnung": "Präparieren einer Kavität und Restauration mit plastischem Füllungsmaterial einschließlich Unterfüllung, Anlegen einer Matrize oder Benutzen anderer Hilfsmittel zur Formung der Füllung, zweiflächig"
-  },
-  {
-    "goz_nr": "2080",
-    "bezeichnung": "Präparieren einer Kavität und Restauration mit Kompositmaterialien, in Adhäsivtechnik (Konditionieren), zweiflächig, ggf. einschließlich Mehrschichttechnik, einschließlich Polieren, ggf. einschließlich Verwendung von Inserts"
-  },
-  {
-    "goz_nr": "2090",
-    "bezeichnung": "Präparieren einer Kavität und Restauration mit plastischem Füllungsmaterial einschließlich Unterfüllung, Anlegen einer Matrize oder Benutzen anderer Hilfsmittel zur Formung der Füllung, dreiflächig"
-  },
-  {
-    "goz_nr": "2100",
-    "bezeichnung": "Präparieren einer Kavität und Restauration mit Kompositmaterialien, in Adhäsivtechnik (Konditionieren), dreiflächig, ggf. einschließlich Mehrschichttechnik, einschließlich Polieren, ggf. einschließlich Verwendung von Inserts"
-  },
-  {
-    "goz_nr": "2110",
-    "bezeichnung": "Präparieren einer Kavität und Restauration mit plastischem Füllungsmaterial einschließlich Unterfüllung, Anlegen einer Matrize oder Benutzen anderer Hilfsmittel zur Formung der Füllung, mehr als dreiflächig"
-  },
-  {
-    "goz_nr": "2120",
-    "bezeichnung": "Präparieren einer Kavität und Restauration mit Kompositmaterialien, in Adhäsivtechnik (Konditionieren), mehr als dreiflächig, ggf. einschließlich Mehrschichttechnik, einschließlich Polieren, ggf. einschließlich Verwendung von Inserts"
-  },
-  {
-    "goz_nr": "2130",
-    "bezeichnung": "Kontrolle, Finieren/Polieren einer Restauration in separater Sitzung, auch Nachpolieren einer vorhandenen Restauration"
-  },
-  {
-    "goz_nr": "2150",
-    "bezeichnung": "Einlagefüllung, einflächig"
-  },
-  {
-    "goz_nr": "2160",
-    "bezeichnung": "Einlagefüllung, zweiflächig"
-  },
-  {
-    "goz_nr": "2170",
-    "bezeichnung": "Einlagefüllung, mehr als zweiflächig"
-  },
-  {
-    "goz_nr": "2180",
-    "bezeichnung": "Vorbereitung eines zerstörten Zahnes mit plastischem Aufbaumaterial zur Aufnahme einer Krone"
-  },
-  {
-    "goz_nr": "2190",
-    "bezeichnung": "Vorbereitung eines zerstörten Zahnes durch gegossenen Aufbau mit Stiftverankerung zur Aufnahme einer Krone"
-  },
-  {
-    "goz_nr": "2195",
-    "bezeichnung": "Vorbereitung eines zerstörten Zahnes durch einen Schraubenaufbau oder Glasfaserstift o. Ä. zur Aufnahme einer Krone"
-  },
-  {
-    "goz_nr": "2197",
-    "bezeichnung": "Adhäsive Befestigung (plastischer Aufbau, Stift, Inlay, Krone, Teilkrone, Veneer etc.)"
-  },
-  {
-    "goz_nr": "2200",
-    "bezeichnung": "Versorgung eines Zahnes oder Implantats durch eine Vollkrone (Tangentialpräparation)"
-  },
-  {
-    "goz_nr": "2210",
-    "bezeichnung": "Versorgung eines Zahnes durch eine Vollkrone (Hohlkehl- oder Stufenpräparation)"
-  },
-  {
-    "goz_nr": "2220",
-    "bezeichnung": "Versorgung eines Zahnes durch eine Teilkrone mit Retentionsrillen oder -kästen oder mit Pinledges einschließlich Rekonstruktion der gesamten Kaufläche, auch Versorgung eines Zahnes durch ein Veneer"
-  },
-  {
-    "goz_nr": "2230",
-    "bezeichnung": "Enden die Leistungen mit der Präparation eines Zahnes oder der Abdrucknahme beim Implantat, so ist die Hälfte der jeweiligen Gebühr berechnungsfähig"
-  },
-  {
-    "goz_nr": "2240",
-    "bezeichnung": "Sind darüber hinaus weitere Maßnahmen erfolgt, so sind drei Viertel der jeweiligen Gebühr berechnungsfähig"
-  },
-  {
-    "goz_nr": "2250",
-    "bezeichnung": "Eingliederung einer konfektionierten Krone in der pädiatrischen Zahnheilkunde"
-  },
-  {
-    "goz_nr": "2260",
-    "bezeichnung": "Provisorium im direkten Verfahren ohne Abformung, je Zahn oder Implantat, einschließlich Entfernung"
-  },
-  {
-    "goz_nr": "2270",
-    "bezeichnung": "Provisorium im direkten Verfahren mit Abformung, je Zahn oder Implantat, einschließlich Entfernung"
+    "bezeichnung": "Präparieren einer Kavität und Restauration mit Kompositmaterialien, in Adhäsivtechnik (Konditionieren), einflächig, ggf. einschließlich Mehrschichttechnik, einschließlich Polieren, ggf. einschließlich Verwendung von Inserts",
+    "erweiterte_beschreibung": "Zahnfarbene Kunststofffüllung mit Klebtechnik für eine Fläche, in mehreren Schichten aufgetragen und poliert. Umgangssprachlich: Kompositfüllung, Kunststofffüllung, Adhäsivfüllung, weiße Füllung einflächig."
   },
   {
     "goz_nr": "2290",
-    "bezeichnung": "Entfernung einer Einlagefüllung, einer Krone, eines Brückenankers, Abtrennen eines Brückengliedes oder Steges oder Ähnliches"
-  },
-  {
-    "goz_nr": "2300",
-    "bezeichnung": "Entfernung eines Wurzelstiftes"
-  },
-  {
-    "goz_nr": "2310",
-    "bezeichnung": "Wiedereingliederung einer Einlagefüllung, einer Teilkrone, eines Veneers oder einer Krone, oder Wiederherstellung einer Verblendschale an herausnehmbarem Zahnersatz"
-  },
-  {
-    "goz_nr": "2320",
-    "bezeichnung": "Wiederherstellung einer Krone, einer Teilkrone, eines Veneers, eines Brückenankers, einer Verblendschale oder einer Verblendung an festsitzendem Zahnersatz, gegebenenfalls einschließlich Wiedereingliederung und Abformung"
-  },
-  {
-    "goz_nr": "2330",
-    "bezeichnung": "Maßnahmen zur Erhaltung der vitalen Pulpa bei Caries profunda (Exkavieren, indirekte Überkappung), je Kavität"
-  },
-  {
-    "goz_nr": "2340",
-    "bezeichnung": "Maßnahmen zur Erhaltung der freiliegenden vitalen Pulpa (Exkavieren, direkte Überkappung), je Kavität"
+    "bezeichnung": "Entfernung einer Einlagefüllung, einer Krone, eines Brückenankers, Abtrennen eines Brückengliedes oder Steges oder Ähnliches",
+    "erweiterte_beschreibung": "Entfernen einer alten Füllung, Krone oder Brücke, die fest einzementiert oder geklebt ist. Umgangssprachlich: Kronenentfernung, Inlay entfernen, Brücke abtrennen, Dezemention."
   },
   {
     "goz_nr": "2350",
-    "bezeichnung": "Amputation und Versorgung der vitalen Pulpa einschließlich Exkavieren"
-  },
-  {
-    "goz_nr": "2360",
-    "bezeichnung": "Exstirpation der vitalen Pulpa einschließlich Exkavieren, je Kanal"
-  },
-  {
-    "goz_nr": "2380",
-    "bezeichnung": "Amputation und endgültige Versorgung der avitalen Milchzahnpulpa"
-  },
-  {
-    "goz_nr": "2390",
-    "bezeichnung": "Trepanation eines Zahnes, als selbstständige Leistung"
-  },
-  {
-    "goz_nr": "2400",
-    "bezeichnung": "Elektrometrische Längenbestimmung eines Wurzelkanals"
+    "bezeichnung": "Amputation und Versorgung der vitalen Pulpa einschließlich Exkavieren",
+    "erweiterte_beschreibung": "Teilentfernung des lebenden Zahnnervs bei tiefer Karies und Abdeckung mit Medikament, um den restlichen Nerv zu erhalten. Umgangssprachlich: Pulpotomie, Vitalamputation, Nervteilentfernung, Pulpenamputation."
   },
   {
     "goz_nr": "2410",
-    "bezeichnung": "Aufbereitung eines Wurzelkanals auch retrograd, je Kanal, gegebenenfalls in mehreren Sitzungen"
-  },
-  {
-    "goz_nr": "2420",
-    "bezeichnung": "Zusätzliche Anwendung elektrophysikalisch-chemischer Methoden, je Kanal"
-  },
-  {
-    "goz_nr": "2430",
-    "bezeichnung": "Medikamentöse Einlage in Verbindung mit Maßnahmen nach den Nummern 2360, 2380 und 2410, je Zahn und Sitzung"
-  },
-  {
-    "goz_nr": "2440",
-    "bezeichnung": "Füllung eines Wurzelkanals"
+    "bezeichnung": "Aufbereitung eines Wurzelkanals auch retrograd, je Kanal, gegebenenfalls in mehreren Sitzungen",
+    "erweiterte_beschreibung": "Reinigung und Erweiterung des Wurzelkanals mit speziellen Instrumenten bei Wurzelbehandlung, pro Kanal. Umgangssprachlich: Wurzelkanalaufbereitung, WK-Aufbereitung, Kanalaufbereitung, Endo-Aufbereitung."
   }
 ]

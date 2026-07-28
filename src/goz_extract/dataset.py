@@ -44,6 +44,30 @@ def load_golden_synth_fixtures(
     return examples
 
 
+def restrict_to_valid_codes(
+    examples: list[NoteExample], valid_codes: set[str]
+) -> list[NoteExample]:
+    """Projiziert `expected_codes` jedes Beispiels auf `valid_codes` (behält
+    nur Codes, die darin enthalten sind) und verwirft Beispiele, bei denen
+    danach keine Codes mehr übrig sind.
+
+    Anders als `load_golden_synth_fixtures` (verwirft ein Beispiel komplett,
+    sobald auch nur ein Code außerhalb des Space liegt): hier wird
+    projiziert statt verworfen. Bei einem reduzierten Code-Space (z.B. ein
+    Kern-Set von 10 statt 55 Codes) hätte striktes Verwerfen fast alle
+    Mehrfach-Code-Beispiele gekostet, obwohl sie für die verbleibenden
+    Codes weiterhin ein gültiges Trainingssignal liefern - z.B. eine Notiz
+    mit `["0090", "2080"]` bleibt bei `valid_codes={"0090"}` als `["0090"]`
+    erhalten, statt komplett zu verschwinden."""
+    result = []
+    for example in examples:
+        kept_codes = [c for c in example.expected_codes if c in valid_codes]
+        if not kept_codes:
+            continue
+        result.append(example.model_copy(update={"expected_codes": kept_codes}))
+    return result
+
+
 def split_dataset(
     examples: list[NoteExample], test_fraction: float, seed: int
 ) -> tuple[list[NoteExample], list[NoteExample]]:

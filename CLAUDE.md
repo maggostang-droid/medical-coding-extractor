@@ -49,8 +49,9 @@ Kein Linter konfiguriert.
   `retrieval.py`, `schema.py`
 - `scripts/` — CLI-Einstiegspunkte, die die Package-Funktionen aufrufen
   (Curation → Datengenerierung → Dataset-Assembly → Eval)
-- `data/goz_codes.json` — kuratierte 55-Code-Label-Liste (Teilmenge der
-  amtlichen GOZ-Codeliste)
+- `data/goz_codes.json` — kuratierte Label-Liste (Teilmenge der amtlichen
+  GOZ-Codeliste), seit dem 2026-07-28-Review auf ein 10-Code-Kernset
+  reduziert (siehe HANDOVER.md)
 - `notebooks/train_and_infer.ipynb` — Colab-only: LoRA-Training + Inferenz
   beider Ansätze (RAG-Baseline vs. LoRA-Finetune) auf Llama-3.2-3B-Instruct
 - `app.py` — Streamlit-Demo (Root-Level, nicht unter `src/`)

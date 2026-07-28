@@ -5,6 +5,8 @@ __pycache__/
 *.pyc
 .env
 data/synthetic_notes.jsonl
+data/synthetic_notes_core10.jsonl
+data/synthetic_notes_combined.jsonl
 data/train.jsonl
 data/test.jsonl
 results/predictions_*.jsonl

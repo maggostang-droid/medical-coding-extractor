@@ -15,6 +15,22 @@ def test_goz_code_rejects_missing_fields():
         GozCode(goz_nr="0090")
 
 
+def test_goz_code_format_for_prompt_without_erweiterte_beschreibung():
+    code = GozCode(goz_nr="0090", bezeichnung="Intraorale Infiltrationsanästhesie")
+    assert code.format_for_prompt() == "0090: Intraorale Infiltrationsanästhesie"
+
+
+def test_goz_code_format_for_prompt_with_erweiterte_beschreibung():
+    code = GozCode(
+        goz_nr="0090",
+        bezeichnung="Intraorale Infiltrationsanästhesie",
+        erweiterte_beschreibung="Lokale Betäubung durch Einspritzen.",
+    )
+    assert code.format_for_prompt() == (
+        "0090: Intraorale Infiltrationsanästhesie (Lokale Betäubung durch Einspritzen.)"
+    )
+
+
 def test_note_example_defaults():
     note = NoteExample(
         text="Zahn 36: Infiltrationsanästhesie, Komposit-Füllung zweiflächig.",

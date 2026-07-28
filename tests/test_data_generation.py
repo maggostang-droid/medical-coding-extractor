@@ -34,6 +34,15 @@ def test_build_generation_prompt_mentions_all_codes_and_difficulty():
     assert "2" in prompt
 
 
+def test_build_generation_prompt_asks_for_keyword_overlap_with_bezeichnung():
+    # Soll dem Retrieval (BM25/Embeddings) helfen: Notizen sollen mindestens
+    # einen Begriff aus Bezeichnung/Umgangssprachlich-Liste je Code nutzen,
+    # auch bei "schwer" - nicht nur rein implizite Formulierungen.
+    prompt = build_generation_prompt(CODES, difficulty="hard", n_examples=2)
+    assert "mindestens einen Begriff" in prompt
+    assert "Retrieval" in prompt
+
+
 def test_parse_generation_response_valid_json():
     examples = parse_generation_response(VALID_RESPONSE)
     assert len(examples) == 2

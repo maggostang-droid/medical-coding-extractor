@@ -1,6 +1,10 @@
 import json
 
-from goz_extract.dataset import load_golden_synth_fixtures, split_dataset
+from goz_extract.dataset import (
+    load_golden_synth_fixtures,
+    restrict_to_valid_codes,
+    split_dataset,
+)
 from goz_extract.schema import NoteExample
 
 
@@ -49,6 +53,30 @@ def test_load_golden_synth_fixtures_skips_codes_outside_valid_set(tmp_path):
 
     assert len(examples) == 1
     assert examples[0].text == in_space["input"]
+
+
+def test_restrict_to_valid_codes_projects_instead_of_dropping():
+    examples = [
+        NoteExample(text="Notiz A", expected_codes=["0090", "2080"]),
+        NoteExample(text="Notiz B", expected_codes=["2080"]),
+        NoteExample(text="Notiz C", expected_codes=["0090"]),
+    ]
+
+    result = restrict_to_valid_codes(examples, valid_codes={"0090"})
+
+    assert len(result) == 2
+    assert result[0].text == "Notiz A"
+    assert result[0].expected_codes == ["0090"]
+    assert result[1].text == "Notiz C"
+    assert result[1].expected_codes == ["0090"]
+
+
+def test_restrict_to_valid_codes_drops_examples_with_no_remaining_codes():
+    examples = [NoteExample(text="Notiz A", expected_codes=["2080"])]
+
+    result = restrict_to_valid_codes(examples, valid_codes={"0090"})
+
+    assert result == []
 
 
 def _make_examples(n: int, source: str = "generated") -> list[NoteExample]:

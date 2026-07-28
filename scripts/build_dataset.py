@@ -12,7 +12,11 @@ import argparse
 import json
 from pathlib import Path
 
-from goz_extract.dataset import load_golden_synth_fixtures, split_dataset
+from goz_extract.dataset import (
+    load_golden_synth_fixtures,
+    restrict_to_valid_codes,
+    split_dataset,
+)
 from goz_extract.schema import GozCode, NoteExample
 
 
@@ -33,12 +37,20 @@ def main() -> None:
     ]
     codes = [GozCode(**c) for c in json.loads(args.codes.read_text(encoding="utf-8"))]
     valid_codes = {c.goz_nr for c in codes}
+    # generated-Notizen werden auf valid_codes projiziert (siehe
+    # restrict_to_valid_codes in dataset.py) statt komplett verworfen, wenn
+    # ein einzelner Code außerhalb des Space liegt - wichtig bei einem
+    # reduzierten Code-Space, sonst verliert man fast alle
+    # Mehrfach-Code-Beispiele.
+    generated = restrict_to_valid_codes(generated, valid_codes)
     # load_golden_synth_fixtures filtert real_-Fixtures bereits beim Einlesen
     # aus (Glob-Pattern "*synth*.json") - siehe dataset.py. valid_codes
     # filtert zusätzlich Fixtures raus, deren erwartete Codes außerhalb des
-    # kuratierten 55-Code-Label-Space liegen (z.B. GOÄ-Codes) - die wären
+    # kuratierten Code-Label-Space liegen (z.B. GOÄ-Codes) - die wären
     # von keinem der beiden Ansätze beantwortbar und würden die Metriken
-    # künstlich drücken.
+    # künstlich drücken. Golden-Fixtures werden bewusst nicht projiziert
+    # (anders als generated) - sie sind wenige und sollen unverändert
+    # bleiben, wenn überhaupt im Space.
     golden_synth = load_golden_synth_fixtures(args.golden_synth_dir, valid_codes=valid_codes)
 
     train, test = split_dataset(generated + golden_synth, args.test_fraction, args.seed)

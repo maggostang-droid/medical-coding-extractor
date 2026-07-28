@@ -15,10 +15,27 @@ def tokenize(text: str) -> list[str]:
     return re.findall(r"\w+", text.lower())
 
 
+def segment_note(note_text: str) -> list[str]:
+    """Splittet eine Notiz grob in einzelne Behandlungsschritte (Trenner:
+    Satzzeichen). MAIKAs Produktivpipeline macht das über einen dedizierten
+    LLM-Call (siehe Handover); hier bewusst eine simple Regel statt eines
+    dritten Modell-Calls. Zweck: Retrieval pro Schritt statt über die ganze
+    Notiz auf einmal, weil ein kurz erwähnter, seltener Schritt (z.B. eine
+    Anästhesie neben einer Füllung) sonst im BM25-/Embedding-Vektor der
+    gesamten Notiz untergeht."""
+    segments = re.split(r"[.,;:]", note_text)
+    return [s.strip() for s in segments if s.strip()]
+
+
 class BM25Index:
     def __init__(self, codes: list[GozCode]) -> None:
         self._codes = codes
-        self._corpus = [tokenize(c.bezeichnung) for c in codes]
+        # format_for_prompt() statt nur bezeichnung: hängt die
+        # umgangssprachlichen Begriffe aus erweiterte_beschreibung an, falls
+        # vorhanden (z.B. "Kofferdam" für 2040) - genau die Begriffe, die in
+        # echten Notizen auftauchen, nicht die amtliche Bezeichnung. Ohne
+        # das kann BM25 nur exakte Amtsbegriffe matchen.
+        self._corpus = [tokenize(c.format_for_prompt()) for c in codes]
         self._bm25 = BM25Okapi(self._corpus)
 
     def rank(self, query: str) -> list[str]:
@@ -43,7 +60,8 @@ class EmbeddingIndex:
     ) -> None:
         self._codes = codes
         self._encode_query_fn = encode_query_fn or encode_fn
-        embeddings = encode_fn([c.bezeichnung for c in codes])
+        # format_for_prompt() statt nur bezeichnung - siehe Kommentar in BM25Index.
+        embeddings = encode_fn([c.format_for_prompt() for c in codes])
         norms = np.linalg.norm(embeddings, axis=1, keepdims=True)
         norms[norms == 0] = 1.0
         self._embeddings = embeddings / norms
@@ -68,5 +86,10 @@ def reciprocal_rank_fusion(rankings: list[list[str]], k: int = 60) -> list[str]:
 def retrieve_candidates(
     note_text: str, bm25_index: BM25Index, embedding_index: EmbeddingIndex, top_n: int
 ) -> list[str]:
-    fused = reciprocal_rank_fusion([bm25_index.rank(note_text), embedding_index.rank(note_text)])
+    segments = segment_note(note_text) or [note_text]
+    rankings = []
+    for segment in segments:
+        rankings.append(bm25_index.rank(segment))
+        rankings.append(embedding_index.rank(segment))
+    fused = reciprocal_rank_fusion(rankings)
     return fused[:top_n]

@@ -59,7 +59,7 @@ note_text = st.text_area(
 )
 
 if st.button("Extrahieren"):
-    candidate_nrs = retrieve_candidates(note_text, bm25_index, embedding_index, top_n=12)
+    candidate_nrs = retrieve_candidates(note_text, bm25_index, embedding_index, top_n=5)
     candidates = [code_by_nr[nr] for nr in candidate_nrs]
 
     col_rag, col_finetune = st.columns(2)

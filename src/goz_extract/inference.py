@@ -5,7 +5,11 @@ import torch
 from peft import PeftModel
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from goz_extract.prompting import build_extraction_prompt, parse_code_list_response
+from goz_extract.prompting import (
+    build_extraction_prompt,
+    parse_code_list_response,
+    restrict_to_candidates,
+)
 from goz_extract.schema import GozCode
 
 
@@ -68,4 +72,9 @@ def generate_codes(
     generated = tokenizer.decode(
         output_ids[0][inputs["input_ids"].shape[1]:], skip_special_tokens=True
     )
-    return parse_code_list_response(generated, valid_codes)
+    predicted = parse_code_list_response(generated, valid_codes)
+
+    if candidates is not None:
+        predicted = restrict_to_candidates(predicted, candidates)
+
+    return predicted

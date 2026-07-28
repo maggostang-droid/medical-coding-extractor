@@ -13,12 +13,12 @@ from goz_extract.schema import GozCode, NoteExample
 _DIFFICULTY_LABELS = {
     "easy": "leicht (nah an der amtlichen Bezeichnung formuliert)",
     "medium": "mittel (umgangssprachliche Zahnarzt-Notiz, andere Wortwahl)",
-    "hard": "schwer (Abkürzungen, implizite Formulierung ohne offensichtliche Stichwortüberlappung)",
+    "hard": "schwer (Abkürzungen, implizite Formulierung, wenig Übereinstimmung mit der amtlichen Bezeichnung)",
 }
 
 
 def build_generation_prompt(codes: list[GozCode], difficulty: str, n_examples: int) -> str:
-    code_list = "\n".join(f"- {c.goz_nr}: {c.bezeichnung}" for c in codes)
+    code_list = "\n".join(f"- {c.format_for_prompt()}" for c in codes)
     label = _DIFFICULTY_LABELS.get(difficulty, difficulty)
     return f"""Du erstellst synthetische Trainingsdaten für ein GOZ-Code-Extraktionsmodell.
 
@@ -28,6 +28,15 @@ Verfügbare GOZ-Codes (nur diese dürfen als expected_codes vorkommen):
 Erzeuge {n_examples} realistische, kurze zahnärztliche Behandlungsnotizen
 (Schwierigkeitsgrad: {label}). Jede Notiz kombiniert 1-3 der obigen Codes
 plausibel (z.B. Anästhesie + Füllung, nicht rein zufällig).
+
+Verwende für jeden in einer Notiz erwähnten Code mindestens einen Begriff
+aus dessen Bezeichnung oder den "Umgangssprachlich"-Begriffen oben (z.B.
+"Kofferdam" statt "Spanngummi", "WK-Aufbereitung" statt "Wurzelkanal-
+aufbereitung") - das sind reale Fachbegriffe/Abkürzungen, keine künstliche
+Vereinfachung, und helfen einem Retrieval-System, die richtigen Codes zu
+finden. Gilt für alle Schwierigkeitsgrade, auch "schwer" - dort trotzdem
+mindestens einen Fachbegriff oder eine gängige Abkürzung pro Code nutzen,
+den Rest der Notiz aber weiterhin implizit/abgekürzt formulieren.
 
 Antworte ausschließlich mit einem JSON-Array, jedes Element:
 {{"text": "<Notiz>", "expected_codes": ["<goz_nr>", ...]}}
