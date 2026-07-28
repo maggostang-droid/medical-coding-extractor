@@ -9,7 +9,9 @@ from goz_extract.schema import GozCode
 _INSTRUCTION = (
     "Extrahiere alle zutreffenden GOZ-Ziffern aus der folgenden zahnärztlichen "
     "Behandlungsnotiz. Antworte ausschließlich mit einer kommagetrennten Liste "
-    "der Ziffern, ohne weiteren Text."
+    "der Ziffern, ohne weiteren Text, ohne Erklärung, ohne Wiederholung der "
+    "Notiz. Nenne nur Ziffern, die auf die Notiz zutreffen - nicht jede "
+    "Ziffer, die dir zur Auswahl vorliegt."
 )
 
 _CODE_PATTERN = re.compile(r"\bÄ?\d{3,4}\b")
