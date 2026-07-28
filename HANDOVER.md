@@ -1,9 +1,6 @@
 # Handover — goz-finetune-vs-rag
 
-**Stand:** 2026-07-28, nach Merge in `master`, aktuellster Commit `476ac36`.
-Trainingslauf (manueller `Trainer`-Ansatz) ist auf Colab erfolgreich
-durchgelaufen (kein OOM, kein Fehler mehr) — Marco ist gerade beim
-Finetune-Inferenz-Schritt.
+**Stand:** 2026-07-28, nach Merge in `master`, aktuellster Commit `c3f7467`.
 
 **Für wen:** Ein neuer Agent (oder du selbst in einer neuen Session), der hier
 weitermacht, ohne den bisherigen Chatverlauf zu kennen.
@@ -14,6 +11,18 @@ Lies zuerst `CLAUDE.md` (Projektkontext, Arbeitsstil), dann diese Datei
 Implementierungsplan (`docs/superpowers/plans/2026-07-27-goz-finetune-vs-rag-implementation.md`)
 bleiben die Quelle für *warum* die Architektur so aussieht, wie sie aussieht.
 
+**Hinweis zur Entstehung dieser Datei:** Ein Teil der unten beschriebenen
+Fixes (Query-/Passage-Präfixe in `retrieval.py`, Sanity-Check-Zelle fürs
+Training, `trl` aus `pyproject.toml` entfernt) kam von einem parallel
+arbeitenden Agenten, nicht von der Session, die den Rest dieser Datei
+geschrieben hat — beim Zusammenführen sind zwischenzeitlich zwei
+Notebook-Zellen durch einen veralteten Zellen-Verweis kaputtgegangen
+(Markdown-Zelle mit Code als Inhalt, altes Duplikat blieb stehen). Ist
+repariert (Commit `c3f7467`), aber falls das Notebook nochmal komisch
+aussieht: mit `python -c "import json; json.load(open(...))"` und einer
+Zellen-Übersicht (cell_type + erste Zeile pro Zelle) gegenchecken, bevor du
+weiter darauf aufbaust.
+
 ## Wo wir stehen
 
 Alle 13 Tasks aus dem Implementierungsplan sind umgesetzt, einzeln reviewt
@@ -22,45 +31,71 @@ und in `master` gemergt (per Subagent-Driven Development, Branch
 Whole-Branch-Review fand 1 Critical + 4 Important + 5 Minor Findings, alle
 in einer Fix-Runde behoben (Commit `d496ef0`), per Scoped-Re-Review bestätigt.
 
-**Seitdem laufen wir gegen den echten Colab-GPU-Trainingslauf** — das ist der
-Teil, der noch nicht fertig/verifiziert ist. Mehrere Live-Bugs wurden dabei
-gefunden und im Code gefixt (siehe unten), aber der **erste vollständige
-Trainingslauf mit allen Fixes steht noch aus**.
+**Der Colab-GPU-Trainingslauf (Anlauf 3, manueller `Trainer`) ist erfolgreich
+durchgelaufen** (kein OOM, kein Fehler mehr). Danach beim Finetune-Inferenz-
+Schritt (Adapter laden) noch zwei weitere Live-Bugs gefunden und gefixt
+(`torchao`-Versionskonflikt erneut, plus ein `KeyError` durch
+`device_map="auto"`-Offloading, das mit `peft`s Adapter-Lade-Logik
+kollidierte — siehe unten). **Marco steht jetzt kurz davor, die
+Finetune-Inferenz-Zelle mit allen Fixes zu wiederholen** — das ist der
+Zweck der "Sofort-nächster-Schritt"-Anleitung unten.
+
+Offen bleibt weiterhin die inhaltliche Frage: ob der Completion-Masking-Fix
+den ursprünglichen Mode Collapse tatsächlich behoben hat, zeigt sich erst an
+den neuen Predictions/Eval-Zahlen, nicht schon daran, dass der Lauf
+technisch durchlief.
 
 ## Sofort-nächster Schritt
 
-Marco ist mitten in einer Colab-Session (RAG-Baseline bereits gelaufen,
-Trainings-Zelle wurde mehrfach live gepatcht). **Die Trainings-Zelle im
-Repo-Notebook ist jetzt grundlegend anders als das, was ursprünglich lief**
-(siehe "Was gerade live gefixt wurde" unten, dritter Punkt) — er muss die
-aktuelle Zellen-Version (aus `notebooks/train_and_infer.ipynb`, Abschnitt 3)
-in seine laufende Session einfügen und ausführen. Falls die Session
-inzwischen neu gestartet wurde: einfach das ganze Notebook frisch hochladen
-(`notebooks/train_and_infer.ipynb` hat alle Fixes bereits committed) +
-`goz-extract-src.zip` aus dem Repo-Root bei der Upload-Zelle hochladen
-(ebenfalls aktuell), dann normal von oben durchlaufen.
+Marco ist mitten in einer Colab-Session: Training ist durch. Die
+Finetune-Inferenz-Zelle (Abschnitt 4) ist gerade zweimal live fehlgeschlagen
+(`torchao`-`ImportError`, dann ein `KeyError` durchs Offloading) — beide
+Fixes sind jetzt im Notebook (Commit `c3f7467`): `torchao`-Upgrade in
+Zelle 1, `device_map={"": 0}` beim Adapter-Laden in Abschnitt 4. **Er muss
+die aktuelle Version der Abschnitt-4-Zelle (Speicher freigeben + Adapter
+laden) aus `notebooks/train_and_infer.ipynb` in seine laufende Session
+einfügen** (kein Neustart nötig, das Training-Ergebnis bleibt erhalten).
 
-**Wichtig, seit dem kritischen Review vom 2026-07-28 (siehe Abschnitt unten):**
-Abschnitt 3 hat jetzt eine zusätzliche Zelle direkt nach der Tokenisierung
-(vor `TrainingArguments`/`trainer.train()`), die die Completion-Masking-Grenze
-an 10 Stichproben verifiziert und mit einer klaren Fehlermeldung abbricht,
-falls sie nicht exakt sitzt. **Falls diese Assertion fehlschlägt: nicht den
-Assert entfernen und weiterlaufen lassen** — das würde denselben
-Mode-Collapse-Bug reproduzieren, den Anlauf 3 eigentlich beheben soll.
-Stattdessen `tokenize_with_completion_mask` debuggen (siehe Markdown-Zelle
-direkt danach im Notebook). `goz-extract-src.zip` muss vor dem Hochladen neu
-gebaut werden, falls `src/goz_extract/prompting.py` oder `retrieval.py`
-seit dem letzten Build geändert wurden (siehe "Lokales Setup" unten) —
-beide haben sich in diesem Review geändert.
+**Wichtig: die bereits gelaufene RAG-Baseline muss auch nochmal laufen**,
+bevor `run_eval.py` aussagekräftige Zahlen liefert. Zwei Gründe:
+1. `prompting.py` und `retrieval.py` haben seit dem RAG-Baseline-Lauf
+   Fixes bekommen (schärfere Instruktion, getrennte Query-/Passage-Präfixe
+   fürs Embedding-Retrieval — asymmetrische Encoder wie
+   `multilingual-e5-base` brauchen das) — der gelaufene
+   `results/predictions_rag.jsonl` spiegelt noch den alten Code wider.
+2. Die RAG-Baseline-Zelle selbst hat jetzt auch `device_map={"": 0}` (war
+   vorher `"auto"`, hätte beim erneuten Laden potenziell dasselbe
+   Offload-Problem wie beim Finetune-Schritt).
 
-**Wenn der Trainingslauf durch ist:** Ergebnisse herunterladen (siehe
-Anleitung im Notebook, Abschnitt 5), lokal nach `results/` bzw. `adapters/`
-legen (Downloads/Zip-Struktur vorher prüfen — beim ersten Mal landete der
-Adapter-Ordner doppelt verschachtelt, siehe "Bekannte Stolperfallen beim
-Download" unten), `scripts/run_eval.py --results-dir results/` laufen
-lassen (nutze dafür `.venv-data`, siehe unten — kein Torch nötig), und
-**die Zahlen kritisch prüfen** (siehe "Was zu erwarten ist" unten) bevor du
-sie als Endergebnis behandelst oder ins README schreibst.
+Dafür: `goz-extract-src.zip` aus dem Repo-Root neu hochladen (schon mit
+allen Fixes neu gebaut) + die RAG-Baseline-Zellen (Abschnitt 2) erneut
+ausführen (Basismodell muss neu geladen werden, `base_model` wurde beim
+Speicher-Freigeben-Schritt schon gelöscht).
+
+**Neu seit dem parallelen Review:** eine Sanity-Check-Zelle direkt nach der
+Tokenisierung in Abschnitt 3 (vor `TrainingArguments`/`trainer.train()`),
+die die Completion-Masking-Grenze an 10 Stichproben verifiziert und mit
+einer klaren Fehlermeldung abbricht, falls sie nicht exakt sitzt. **Die
+bereits gelaufene Trainingssession hatte diese Zelle noch nicht** — die
+Masking-Korrektheit für den bereits trainierten Adapter ist technisch noch
+unverifiziert, auch wenn der Lauf selbst ohne Fehler durchging und die
+Loss-Kurve plausibel aussah. Falls `tokenized_train` und `tokenizer` in der
+laufenden Colab-Session noch im Speicher sind (wurden beim
+Speicher-Freigeben-Schritt für Abschnitt 4 gelöscht — falls das schon
+passiert ist, nicht mehr nachholbar ohne neu zu trainieren), lohnt sich ein
+nachträgliches Ausführen dieser Zelle als Bestätigung. Falls nicht mehr
+möglich: kein Blocker, nur ein fehlender zusätzlicher Vertrauensbeweis —
+die Eval-Zahlen selbst sind der eigentliche Test.
+
+**Wenn Finetune-Inferenz und die neue RAG-Baseline durch sind:** Ergebnisse
+herunterladen (siehe Anleitung im Notebook, Abschnitt 5), lokal nach
+`results/` bzw. `adapters/` legen (Downloads/Zip-Struktur vorher prüfen —
+beim ersten Mal landete der Adapter-Ordner doppelt verschachtelt, siehe
+"Bekannte Stolperfalle beim Artefakte-Download" unten), `scripts/run_eval.py
+--results-dir results/` laufen lassen (nutze dafür `.venv-data`, siehe
+unten — kein Torch nötig), und **die Zahlen kritisch prüfen** (siehe "Was
+zu erwarten ist" unten) bevor du sie als Endergebnis behandelst oder ins
+README schreibst.
 
 ## Was gerade live gefixt wurde (und warum)
 
@@ -105,13 +140,16 @@ Committete Fixes dafür:
    ohne Completion-Masking der Loss auf dem sich wiederholenden
    Prompt-Teil, das Lernsignal für die eigentliche Code-Auswahl ging unter.
 
-**Anlauf 3 wurde noch NICHT gegen einen echten Trainingslauf verifiziert**
-— das ist der Zweck des "Sofort-nächster-Schritt"-Laufs oben. Falls auch
-der manuelle `Trainer`-Ansatz an einer weiteren Versions-Eigenheit scheitert
-(z.B. `prepare_model_for_kbit_training`/`get_peft_model`-Signatur hat sich
-geändert): dieselbe Introspektions-Strategie wie bei den TRL-Fehlern
-anwenden (`inspect.signature(...)`, `dir(...)`, Docstring lesen) statt zu
-raten — hat bisher jedes Mal den echten Grund gefunden.
+**Anlauf 3 ist jetzt gegen einen echten Trainingslauf gelaufen** (siehe "Wo
+wir stehen" oben) — technisch fehlerfrei, aber ob die Masking-Grenze dabei
+tatsächlich korrekt saß, ist noch nicht per Sanity-Check bestätigt (siehe
+"Sofort-nächster Schritt" oben, die neue Zelle kam erst danach dazu). Falls
+bei einem künftigen Trainingslauf der manuelle `Trainer`-Ansatz an einer
+weiteren Versions-Eigenheit scheitert (z.B. `prepare_model_for_kbit_training`/
+`get_peft_model`-Signatur hat sich geändert): dieselbe Introspektions-Strategie
+wie bei den TRL-Fehlern anwenden (`inspect.signature(...)`, `dir(...)`,
+Docstring lesen) statt zu raten — hat bisher jedes Mal den echten Grund
+gefunden.
 
 ### Was zu erwarten ist / wie du die neuen Zahlen einordnest
 
@@ -134,6 +172,58 @@ raten — hat bisher jedes Mal den echten Grund gefunden.
 - Vergiss nicht: das Test-Set hat nur 82 Notizen (nach dem Label-Space-Fix,
   siehe unten) — bei so kleinen Zahlen schwankt F1 stark zwischen einzelnen
   Beispielen, nicht überinterpretieren.
+
+## Kritischer Code-Review (2026-07-28)
+
+Auf Marcos Bitte hin nochmal das ganze Projekt kritisch durchgegangen,
+Schwerpunkt `notebooks/train_and_infer.ipynb`. Sechs Fixes umgesetzt,
+`pytest` bleibt grün (42 passed, 1 skipped):
+
+1. **Sanity-Check-Zelle fürs Completion-Masking** (neue Zelle in
+   Notebook-Abschnitt 3, direkt nach der Tokenisierung): `prompt_len =
+   min(len(prompt_ids), len(full_ids))` in `tokenize_with_completion_mask`
+   geht davon aus, dass separates Tokenisieren des abgeschnittenen
+   Prompt-Strings exakt ein Präfix der Tokenisierung des vollständigen
+   Strings ergibt — bei BPE-Tokenizern an Konkatenationsgrenzen nicht
+   garantiert. War bis jetzt an keiner Stelle verifiziert. Die neue Zelle
+   decodiert für 10 Zufallsbeispiele die nicht-maskierten Labels und
+   assert-t, dass sie exakt `", ".join(expected_codes)` entsprechen —
+   bricht mit klarer Meldung ab, statt einen Trainingslauf mit falscher
+   Maskierungsgrenze (= derselbe Mechanismus wie der ursprüngliche Mode
+   Collapse) unbemerkt durchlaufen zu lassen. **Siehe "Sofort-nächster
+   Schritt" oben — diese Zelle lief noch nicht gegen den bereits
+   trainierten Adapter.**
+2. **`prompting.py`, `_INSTRUCTION`**: ergänzt um "Erwähne keine anderen
+   Ziffern aus der Kandidatenliste, auch nicht um zu begründen, warum sie
+   nicht zutreffen." `parse_code_list_response` sammelt jede 3-4-stellige
+   Zahl aus dem gesamten generierten Text ein (bewusst so, siehe
+   `test_parse_code_list_response_extracts_from_prose`) — wenn das Modell
+   die Kandidatenliste kommentiert statt nur die Auswahl zu nennen, zählt
+   jede erwähnte Ziffer als Vorhersage. Passt auffällig gut zur
+   beobachteten Baseline-Überprediction (9 von 12 Kandidaten). Der
+   bisherige Fix (`b030681`) adressierte nur "keine Wiederholung der
+   Notiz", nicht dieses Muster.
+3. **`retrieval.py`, `EmbeddingIndex`**: nimmt jetzt optional
+   `encode_query_fn` getrennt von `encode_fn` entgegen. Vorher wurde
+   dieselbe Funktion (mit `"passage: "`-Präfix) für Korpus **und** Query
+   benutzt — `intfloat/multilingual-e5-base` ist aber asymmetrisch
+   trainiert (`"query: "` für Suchanfragen, `"passage: "` für Korpus-Texte);
+   beide Seiten gleich zu präfixieren verletzt diese Konvention und
+   verschlechtert die Embedding-Hälfte der RRF-Fusion. Notebook-Abschnitt 2
+   und `app.py` nutzen jetzt `encode_passages`/`encode_query` getrennt.
+   Neuer Test: `test_embedding_index_uses_separate_query_encoder_when_given`.
+4. **Notebook Abschnitt 3, `collate_fn`**: `pad_id = tokenizer.pad_token_id
+   or tokenizer.eos_token_id` → `... if tokenizer.pad_token_id is not None
+   else ...`. Latenter Fallstrick, falls `pad_token_id` je `0` wäre (falsy
+   in Python); aktuell unkritisch, da Llama-3-Tokenizer standardmäßig kein
+   Pad-Token hat.
+5. **`pyproject.toml`**: `trl`-Dependency entfernt — seit Anlauf 3
+   (`7bc7cd7`, plain `Trainer` statt `SFTTrainer`) importiert nirgendwo im
+   Code mehr etwas aus `trl`.
+6. Validiert (kein Fund, nur Gegencheck): "2300" (das Mode-Collapse-Ziel im
+   ersten Lauf) kommt nur 4 von 329 Mal in `data/train.jsonl` vor — spricht
+   gegen Label-Imbalance als Ursache und für die bestehende Diagnose
+   (Loss dominiert vom sich wiederholenden Prompt-Teil).
 
 ## Bekannte Stolperfalle beim Artefakte-Download
 
@@ -169,6 +259,20 @@ auftreten:
 - **`notebook_login()`**: nimmt den Token NICHT als Argument entgegen
   (`notebook_login("hf_...")` wirft `TypeError`) — Zelle ohne Argument
   aufrufen, Token ins dann erscheinende Eingabefeld einfügen.
+- **`device_map="auto"`-Offloading kollidiert mit `peft`s Adapter-Ladelogik**
+  (Commit `c3f7467`): Nach erfolgreichem Training crashte das Laden von
+  `finetuned_model` mit `KeyError:
+  'base_model.model.model.model.layers.20.input_layernorm'` — ein
+  `"model."`-Segment zu viel im Pfad, ausgelöst durch
+  `peft.peft_model.PeftModel._update_offload`, das nur greift, wenn
+  `device_map="auto"` tatsächlich Layer auf CPU/Platte auslagert (wenig
+  freier VRAM zum Ladezeitpunkt, z.B. weil `base_model`/`train_model` vom
+  vorherigen Schritt noch nicht vollständig freigegeben waren). Fix:
+  `load_model()` hat jetzt einen `device_map`-Parameter (Default weiterhin
+  `"auto"`); RAG-Baseline- und Finetune-Inferenz-Zellen im Notebook rufen
+  ihn jetzt mit `device_map={"": 0}` auf (alles auf eine GPU, kein
+  Offload) — Llama 3.2 3B passt in fp16 (~6GB) komfortabel auf eine T4
+  ohne Auslagerung, wenn vorher aufgeräumt wurde.
 
 ## Bewusst nicht gefixt (Entscheidung, kein Vergessen)
 
@@ -183,13 +287,11 @@ auftreten:
   bewusste Ausnahme, weil er kein Rate-Pin mehr ist, sondern zweimal live
   reproduziert und bestätigt wurde (siehe oben, jetzt in Zelle 1
   eingebaut).
-- **`device_map="auto"`-Offloading auf CPU** (einmal während des RAG-
-  Baseline-Laufs aufgetreten, per manuellem `.to("cuda:0")` umgangen): trat
-  vermutlich nur wegen Speicherdrucks durch mehrfaches Neuladen während des
-  Live-Debuggings auf, nicht als systematischer Bug. Nicht in den
-  committeten Code übernommen — bei einem sauberen Durchlauf sollte ein
-  3B-Modell in fp16 (~6GB) auf einer T4 (~15GB) problemlos komplett auf die
-  GPU passen.
+
+(Das `device_map="auto"`-Offloading-Problem, ursprünglich hier als "nicht
+systematisch, nicht gefixt" vermerkt, ist inzwischen doch als echter,
+reproduzierbarer Bug bestätigt und gefixt — siehe "Andere im
+Colab-Debugging gefundene und gefixte Bugs" oben.)
 
 ## Lokales Setup — wichtige Fallstricke auf dieser Maschine
 
@@ -225,8 +327,10 @@ auftreten:
   Bündel (`src/goz_extract/` + `data/goz_codes.json` + `data/train.jsonl` +
   `data/test.jsonl`). Nach jeder Änderung an einer dieser Dateien neu
   bauen: `zip -r goz-extract-src.zip src/goz_extract data/goz_codes.json
-  data/train.jsonl data/test.jsonl -x "*__pycache__*"` (aktuell mit Stand
-  Commit `b030681` gebaut).
+  data/train.jsonl data/test.jsonl -x "*__pycache__*"`. **Stand nach dem
+  Review vom 2026-07-28 (`prompting.py`, `retrieval.py` geändert) noch
+  nicht neu gebaut** — vor dem nächsten Colab-Upload nachholen, siehe
+  "Sofort-nächster Schritt" oben.
 
 ## Aktueller Datei-Status (nicht committed, bewusst)
 
