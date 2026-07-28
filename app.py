@@ -26,9 +26,18 @@ def load_resources():
     valid_codes = set(code_by_nr)
 
     embed_model = SentenceTransformer("intfloat/multilingual-e5-base")
-    encode_fn = lambda texts: embed_model.encode([f"passage: {t}" for t in texts])
+
+    # intfloat/multilingual-e5-base ist asymmetrisch trainiert: Korpus-Texte
+    # brauchen "passage: ", Suchanfragen "query: " - dieselbe Präfixierung für
+    # beide Seiten zu verwenden verschlechtert die Embedding-Retrieval-Qualität.
+    def encode_passages(texts):
+        return embed_model.encode([f"passage: {t}" for t in texts])
+
+    def encode_query(texts):
+        return embed_model.encode([f"query: {t}" for t in texts])
+
     bm25_index = BM25Index(codes)
-    embedding_index = EmbeddingIndex(codes, encode_fn=encode_fn)
+    embedding_index = EmbeddingIndex(codes, encode_fn=encode_passages, encode_query_fn=encode_query)
 
     # Lädt das Basismodell nur einmal (statt wie zuvor zwei komplette
     # Kopien mit je eigenem load_model()-Aufruf) und schaltet den LoRA-

@@ -14,7 +14,6 @@ dependencies = [
     "torch>=2.2",
     "transformers>=4.44",
     "peft>=0.12",
-    "trl>=0.9",
     "datasets>=2.20",
     "streamlit>=1.37",
 ]

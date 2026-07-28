@@ -11,7 +11,9 @@ _INSTRUCTION = (
     "Behandlungsnotiz. Antworte ausschließlich mit einer kommagetrennten Liste "
     "der Ziffern, ohne weiteren Text, ohne Erklärung, ohne Wiederholung der "
     "Notiz. Nenne nur Ziffern, die auf die Notiz zutreffen - nicht jede "
-    "Ziffer, die dir zur Auswahl vorliegt."
+    "Ziffer, die dir zur Auswahl vorliegt. Erwähne keine anderen Ziffern aus "
+    "der Kandidatenliste, auch nicht um zu begründen, warum sie nicht "
+    "zutreffen - jede genannte Ziffer wird als Vorhersage gewertet."
 )
 
 _CODE_PATTERN = re.compile(r"\bÄ?\d{3,4}\b")

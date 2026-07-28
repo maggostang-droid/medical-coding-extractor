@@ -28,16 +28,28 @@ class BM25Index:
 
 
 class EmbeddingIndex:
-    def __init__(self, codes: list[GozCode], encode_fn: Callable[[list[str]], np.ndarray]) -> None:
+    """encode_fn und encode_query_fn getrennt, weil asymmetrische Encoder wie
+    intfloat/multilingual-e5-base unterschiedliche Präfixe für Korpus-Texte
+    ("passage: ") und Suchanfragen ("query: ") erwarten - beide mit derselben
+    Funktion zu encodieren verletzt diese trainierte Konvention und verschlechtert
+    die Retrieval-Qualität. encode_query_fn fällt auf encode_fn zurück für
+    symmetrische Encoder (z.B. den Fake-Encoder in Tests)."""
+
+    def __init__(
+        self,
+        codes: list[GozCode],
+        encode_fn: Callable[[list[str]], np.ndarray],
+        encode_query_fn: Callable[[list[str]], np.ndarray] | None = None,
+    ) -> None:
         self._codes = codes
-        self._encode_fn = encode_fn
+        self._encode_query_fn = encode_query_fn or encode_fn
         embeddings = encode_fn([c.bezeichnung for c in codes])
         norms = np.linalg.norm(embeddings, axis=1, keepdims=True)
         norms[norms == 0] = 1.0
         self._embeddings = embeddings / norms
 
     def rank(self, query: str) -> list[str]:
-        query_vec = self._encode_fn([query])[0]
+        query_vec = self._encode_query_fn([query])[0]
         norm = np.linalg.norm(query_vec) or 1.0
         query_vec = query_vec / norm
         scores = self._embeddings @ query_vec

@@ -10,7 +10,10 @@ from goz_extract.schema import GozCode
 
 
 def load_model(
-    model_id: str, adapter_path: str | None = None, torch_dtype=torch.float16
+    model_id: str,
+    adapter_path: str | None = None,
+    torch_dtype=torch.float16,
+    device_map="auto",
 ):
     """Lädt Modell + Tokenizer.
 
@@ -19,10 +22,18 @@ def load_model(
     nicht nativ - es fällt sonst still auf langsame Emulation zurück, und
     die bitsandbytes-Doku empfiehlt fp16 für Pre-Ampere-Karten. Aufrufer mit
     besserer Hardware (Ampere+) können explizit torch.bfloat16 übergeben.
+
+    device_map="auto" kann bei knappem freiem VRAM Layer auf CPU/Platte
+    auslagern (accelerate-Offloading) - das kollidiert live beobachtet mit
+    peft's Adapter-Ladelogik (KeyError mit einem zusätzlichen "model."-
+    Präfix in _update_offload). Bei adapter_path!=None und wenig freiem
+    Speicher: device_map={"": 0} übergeben, um alles auf eine GPU zu
+    zwingen (kein Offload) - Llama 3.2 3B passt in fp16 (~6GB) meist auch
+    ohne "auto" komplett auf eine T4.
     """
     tokenizer = AutoTokenizer.from_pretrained(model_id)
     model = AutoModelForCausalLM.from_pretrained(
-        model_id, torch_dtype=torch_dtype, device_map="auto"
+        model_id, torch_dtype=torch_dtype, device_map=device_map
     )
     if adapter_path is not None:
         model = PeftModel.from_pretrained(model, adapter_path)

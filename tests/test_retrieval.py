@@ -42,6 +42,24 @@ def test_embedding_index_ranks_by_cosine_similarity():
     assert len(ranking) == 3
 
 
+def test_embedding_index_uses_separate_query_encoder_when_given():
+    calls = []
+
+    def encode_corpus(texts):
+        calls.append(("corpus", list(texts)))
+        return _fake_encode_fn(texts)
+
+    def encode_query(texts):
+        calls.append(("query", list(texts)))
+        return _fake_encode_fn(texts)
+
+    index = EmbeddingIndex(CODES, encode_fn=encode_corpus, encode_query_fn=encode_query)
+    index.rank("Untersuchung")
+
+    assert calls[0] == ("corpus", [c.bezeichnung for c in CODES])
+    assert calls[1] == ("query", ["Untersuchung"])
+
+
 def test_reciprocal_rank_fusion_prefers_items_ranked_high_in_both():
     ranking_a = ["0090", "2080", "0010"]
     ranking_b = ["2080", "0090", "0010"]
