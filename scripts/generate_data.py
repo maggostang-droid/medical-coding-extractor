@@ -49,7 +49,11 @@ def main() -> None:
         difficulty = rng.choice(DIFFICULTIES)
         try:
             examples = generate_examples(chat_model, batch_codes, difficulty, EXAMPLES_PER_BATCH)
-        except (ValueError, json.JSONDecodeError) as e:
+        except (ValueError, KeyError) as e:
+            # ValueError deckt u.a. json.JSONDecodeError und pydantic.ValidationError ab
+            # (beides Subklassen). KeyError fängt strukturell unvollständige JSON-Items
+            # ab (valides JSON, aber z.B. "text" oder "expected_codes" fehlt im Item) —
+            # parse_generation_response greift dort per item["text"] direkt zu.
             print(f"Batch übersprungen (Parsing-Fehler): {e}")
             continue
         all_examples.extend(examples)

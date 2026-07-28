@@ -54,6 +54,19 @@ def test_parse_generation_response_rejects_empty():
         parse_generation_response("Ich kann das nicht generieren.")
 
 
+def test_parse_generation_response_raises_keyerror_on_incomplete_item():
+    # Valides JSON, aber ein Item ohne "expected_codes" -> item["expected_codes"]
+    # in parse_generation_response wirft KeyError (nicht ValueError). Das ist
+    # der Fehlerfall, den der Batch-Skip in scripts/generate_data.py zusätzlich
+    # zu ValueError abfangen muss, damit ein einzelner strukturell kaputter
+    # Batch nicht den ganzen Generierungslauf abbricht.
+    import pytest
+
+    incomplete = json.dumps([{"text": "Nur Text, kein expected_codes-Feld."}])
+    with pytest.raises(KeyError):
+        parse_generation_response(incomplete)
+
+
 class _FakeChatModel:
     def invoke(self, prompt: str):
         class _Msg:
