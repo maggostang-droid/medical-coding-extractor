@@ -1,11 +1,11 @@
-"""Einmaliges Skript: liest die volle GOZ-Datenbank aus dem lokalen
-MAIKA-Checkout und schreibt die kuratierte, öffentliche Teilmenge nach
-data/goz_codes.json. Pfad zum MAIKA-Checkout wird per Argument übergeben,
-damit kein persönlicher absoluter Pfad im Repo landet.
+"""Einmaliges Skript: liest die volle GOZ-Datenbank aus einem lokalen
+Checkout eines Referenz-Repos und schreibt die kuratierte, öffentliche
+Teilmenge nach data/goz_codes.json. Pfad zum Checkout wird per Argument
+übergeben, damit kein persönlicher absoluter Pfad im Repo landet.
 
 Aufruf (einmalig, lokal, nicht Teil der automatisierten Tests):
     .venv/Scripts/python.exe scripts/curate_codes.py \
-        --source "C:/Users/Marco/Downloads/dentist-main/dentist-main/data/databases/goz_database_v4.json" \
+        --source "<pfad-zum-referenz-repo>/data/databases/goz_database_v4.json" \
         --out data/goz_codes.json
 """
 import argparse

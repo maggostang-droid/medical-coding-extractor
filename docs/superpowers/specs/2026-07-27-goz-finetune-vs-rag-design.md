@@ -8,46 +8,46 @@
 
 Portfolio-Projekt von Marco Stang für Bewerbungen. Ziel: die PyTorch/Finetuning-Lücke
 im Lebenslauf schließen (Ergänzung zu `sql-agent`, das die SQL/LangGraph-Lücke
-schließt) und die maika-Story im Interview mit einem konkreten Experiment
-untermauern: "Ich habe geprüft, ob Finetuning die RAG-Pipeline schlägt."
+schließt) und im Interview mit einem konkreten Experiment eine Frage
+beantworten: "Schlägt Finetuning die RAG-Pipeline?"
 
-Marco arbeitet bei ILI DIGITAL AG am Produktivsystem **MAIKA** (Notiz →
-GOZ/GOÄ-Abrechnung, Hybrid-Retrieval + LLM-Extraktion + ~50 Validierungsregeln).
-Dieses Projekt ist **kein** Export/Fork von MAIKA, sondern ein bewusst schlankes,
-eigenständiges Portfolio-Projekt, das sich thematisch an einer Teilaufgabe von
-MAIKA orientiert (Retrieval + Extraktion, stark vereinfacht) und komplett neue,
-selbst erzeugte Daten verwendet. Zeitbudget: 1-2 Tage.
+Thematisch an einer Alltagsaufgabe aus dem zahnärztlichen Praxisbetrieb
+orientiert (Notiz → GOZ/GOÄ-Abrechnung), wie sie in bestehenden
+Produktivsystemen vorkommt — dieses Projekt ist aber ein bewusst schlankes,
+eigenständiges Portfolio-Projekt (Retrieval + Extraktion, stark vereinfacht,
+keine Segmentierungs-/Validierungsstufen) mit komplett neuen, selbst
+erzeugten Daten. Zeitbudget: 1-2 Tage.
 
 ## Datenherkunft & IP-Abgrenzung (wichtig)
 
-Aus dem MAIKA-Repo (`github.com/maggostang-droid/dentist`, lokal unter
-`Downloads/dentist-main`) wird **ausschließlich** verwendet:
+Aus einem Referenz-Repo eines bestehenden Produktivsystems wird
+**ausschließlich** verwendet:
 
 - `data/databases/goz_database_v4.json`, und zwar **nur** die Felder `goz_nr`
   und `bezeichnung` — die amtliche Gebührenordnung für Zahnärzte (GOZ) ist ein
   Rechtsverordnungstext, öffentlich und unproblematisch.
-- Die 5 `tests/fixtures/golden_single_v2/*synth_*.json`-Fixtures direkt als
-  Testbeispiele (Notiz + erwartete Codes) sowie als Formatvorlage für die
-  zusätzlichen selbst generierten synthetischen Notizen.
+- 5 Golden-Fixture-Dateien direkt als Testbeispiele (Notiz + erwartete Codes)
+  sowie als Formatvorlage für die zusätzlichen selbst generierten
+  synthetischen Notizen.
 
-**Ausdrücklich NICHT verwendet:** Liebold-Kommentare, `kommentar_kurz`,
-`aliases`, `synonyms.json`, die MAIKA-Embeddings (`goz_embeddings_vault.json`/
-`v4.json` — abgeleitet aus proprietär angereichertem Text, zusätzlich
-Wettbewerbsvorteil von ILI DIGITAL), die `real_*`-Fixtures (echte
-Praxisfälle, vertraulich), sowie jeglicher MAIKA-Anwendungscode
-(`maika/`, `frontend/`).
+**Ausdrücklich NICHT verwendet:** proprietäre Kommentar-/Alias-/Synonym-Daten
+eines Drittanbieters, die dortigen Embeddings (abgeleitet aus proprietär
+angereichertem Text, zusätzlich Wettbewerbsvorteil des Systembetreibers),
+Fixtures mit echten Praxisfällen (vertraulich), sowie jeglicher
+Anwendungscode des Referenzsystems.
 
 Begründung: Rechtstext ist öffentlich, alles andere ist entweder urheberrechtlich
-geschütztes Drittmaterial (Liebold), Geschäfts-IP (Retrieval-/Embedding-Setup)
-oder potenziell vertrauliche/personenbezogene Praxisdaten (`real_*`-Fixtures).
+geschütztes Drittmaterial, Geschäfts-IP (Retrieval-/Embedding-Setup)
+oder potenziell vertrauliche/personenbezogene Praxisdaten.
 
 ## Aufgabe
 
 Multi-Label-Extraktion: ganze zahnärztliche Behandlungsnotiz (kann mehrere
 Behandlungsschritte einer Sitzung beschreiben) → Menge der zutreffenden
-GOZ-Ziffern aus einer festen Codeliste. Das ist die vereinfachte Version von
-MAIKAs Kernaufgabe (Retrieval + Extraktion, ohne die Segmentierungs-Stufe,
-die ~50 Validierungsregeln und die Ä1/Ä3/Ä5-Sonderbehandlung).
+GOZ-Ziffern aus einer festen Codeliste. Das ist eine deutlich vereinfachte
+Version dessen, was ein Produktivsystem hier leisten müsste (Retrieval +
+Extraktion, ohne Segmentierungs-Stufe, deterministische Validierungsregeln
+oder Sonderfall-Behandlung einzelner Codes).
 
 - **Label-Space:** ~40-60 Codes aus den Alltags-Kategorien Konservierende
   Leistungen, Chirurgische Leistungen, Allgemeine zahnärztliche Leistungen
@@ -94,7 +94,7 @@ Prompt statt in den Gewichten.
    - BM25 über die amtlichen `bezeichnung`-Texte der 40-60 Codes
    - Embeddings: selbst berechnet mit einem offenen multilingualen Modell
      (`multilingual-e5-base` o.ä.) über dieselben `bezeichnung`-Texte —
-     bewusst nicht MAIKAs Embeddings oder OpenAI-Embeddings, um IP-Fragen zu
+     bewusst keine proprietären oder OpenAI-Embeddings, um IP-Fragen zu
      vermeiden und zu zeigen, dass die Baseline selbst gebaut statt
      übernommen wurde
    - Kombination via Reciprocal Rank Fusion (RRF), Top-N Kandidaten
@@ -128,11 +128,12 @@ in den Gewichten" sichtbar — ähnlich wie die Guardrail-Badges bei
 ## Out of Scope (bewusst weggelassen)
 
 - Volle 221-Code-Abdeckung
-- Die Segmentierungs-Stufe, die ~50 Validierungsregeln und die
-  Ä1/Ä3/Ä5-Sonderlogik aus MAIKA (deterministische Nachbearbeitung, kein
+- Segmentierungs-Stufe und deterministische Post-Processing-/
+  Validierungsregeln, wie sie ein Produktivsystem bräuchte (kein
   ML-Bestandteil — würde die PyTorch/Finetuning-Kernaussage verwässern)
 - Echte Patienten-/Praxisdaten
-- Übernahme von MAIKA-Code, Liebold-Inhalten oder MAIKA-Embeddings
+- Übernahme von Fremdcode, proprietären Kommentar-Inhalten oder fremden
+  Embeddings
 - Auth, Deployment, Multi-Turn-Memory (analog zu den bewusst weggelassenen
   Punkten bei `sql-agent`)
 

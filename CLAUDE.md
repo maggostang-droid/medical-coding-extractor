@@ -6,14 +6,14 @@ Design-Spec: `docs/superpowers/specs/2026-07-27-goz-finetune-vs-rag-design.md`
 ## Was das hier ist
 
 Portfolio-Projekt von Marco Stang (Schwesterprojekt zu `sql-agent`). Ziel:
-PyTorch/LoRA-Finetuning-Lücke im Lebenslauf schließen und die maika-Story
-("Finetuning vs. RAG") mit einem echten Experiment untermauern.
+PyTorch/LoRA-Finetuning-Lücke im Lebenslauf schließen und die Frage
+"Finetuning vs. RAG" mit einem echten Experiment beantworten.
 
-Orientiert sich an einer Teilaufgabe von MAIKA (Notiz → GOZ-Codes), einem
-Produktivsystem, an dem Marco bei ILI DIGITAL AG arbeitet — verwendet aber
-**nur öffentliche GOZ-Daten** (amtliche Codeliste) und komplett neue,
-selbst generierte Trainingsdaten. Siehe Design-Spec, Abschnitt
-"Datenherkunft & IP-Abgrenzung", für die genaue Abgrenzung.
+Thematisch an einer Alltagsaufgabe aus dem zahnärztlichen Praxisbetrieb
+orientiert (Notiz → GOZ-Abrechnungscode) — verwendet aber **nur öffentliche
+GOZ-Daten** (amtliche Codeliste) und komplett neue, selbst generierte
+Trainingsdaten. Siehe Design-Spec, Abschnitt "Datenherkunft & IP-Abgrenzung",
+für die genaue Abgrenzung.
 
 ## Wie hier gearbeitet wird
 
@@ -50,8 +50,8 @@ Kein Linter konfiguriert.
 - `scripts/` — CLI-Einstiegspunkte, die die Package-Funktionen aufrufen
   (Curation → Datengenerierung → Dataset-Assembly → Eval)
 - `data/goz_codes.json` — kuratierte Label-Liste (Teilmenge der amtlichen
-  GOZ-Codeliste), seit dem 2026-07-28-Review auf ein 10-Code-Kernset
-  reduziert (siehe HANDOVER.md)
+  GOZ-Codeliste), auf ein 10-Code-Kernset reduziert (siehe README für die
+  Begründung)
 - `notebooks/train_and_infer.ipynb` — Colab-only: LoRA-Training + Inferenz
   beider Ansätze (RAG-Baseline vs. LoRA-Finetune) auf Llama-3.2-3B-Instruct
 - `app.py` — Streamlit-Demo (Root-Level, nicht unter `src/`)
@@ -60,22 +60,12 @@ Kein Linter konfiguriert.
 
 ## Aktueller Stand
 
-*Diesen Abschnitt aktuell halten. Für neue Sessions/Agenten: lies zuerst
-`HANDOVER.md` im Repo-Root — die enthält den detaillierten Stand, bekannte
-Fallstricke auf dieser Maschine und den genauen nächsten Schritt. Dieser
-Abschnitt hier ist nur die Kurzfassung.*
+*Diesen Abschnitt aktuell halten.*
 
-- ✅ Alle 13 geplanten Tasks implementiert, einzeln review-clean, finale
-  Whole-Branch-Review durchlaufen und deren Findings gefixt. In `master`
-  gemergt, `pytest` grün (kein GPU/Colab nötig für die lokale Test-Suite).
-- 🟡 **Colab-Trainingslauf läuft gerade / steht kurz bevor.** Der erste
-  vollständige Durchlauf hatte zwei echte Qualitätsbugs (RAG-Baseline gab
-  zu viele Kandidaten zurück, LoRA-Finetune kollabierte auf eine einzelne
-  Vorhersage) — beide sind im Code gefixt (Completion-Only-Loss beim
-  Training, schärfere Extraktions-Instruktion), aber **noch nicht mit
-  einem echten Lauf verifiziert**. Details, exakte nächste Schritte und
-  mehrere gelöste Colab-Umgebungsbugs (transformers-Versions-Inkompatibilität,
-  torchao-Konflikt) stehen in `HANDOVER.md`.
-- ⬜ Danach: `results/results.md` + README-Ergebnistabelle mit echten Zahlen
-  befüllen, Streamlit-Demo (`app.py`) erstmals im Browser testen, IP-
-  Disclosure-Frage zur Design-Spec klären, Repo auf GitHub pushen.
+- ✅ Alle geplanten Tasks implementiert, `pytest` grün (kein GPU/Colab nötig
+  für die lokale Test-Suite).
+- ✅ Colab-Trainingslauf erfolgreich abgeschlossen: LoRA-Finetune schlägt
+  die RAG-Baseline (F1 0.59 vs. 0.48, Exact Match 0.38 vs. 0.07) — siehe
+  README, Abschnitt "Ergebnisse".
+- ✅ Streamlit-Demo (`app.py`) lokal im Browser getestet, läuft.
+- ⬜ Repo noch nicht auf GitHub gepusht.

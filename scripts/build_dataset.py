@@ -4,7 +4,7 @@ Fixtures, splittet und schreibt train/test als JSONL.
 Aufruf:
     .venv/Scripts/python.exe scripts/build_dataset.py \
         --generated data/synthetic_notes.jsonl \
-        --golden-synth-dir "C:/Users/Marco/Downloads/dentist-main/dentist-main/tests/fixtures/golden_single_v2" \
+        --golden-synth-dir "<pfad-zum-referenz-repo>/tests/fixtures/golden_single_v2" \
         --codes data/goz_codes.json \
         --out-dir data/
 """

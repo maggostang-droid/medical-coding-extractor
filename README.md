@@ -12,7 +12,7 @@ beschreiben) werden alle zutreffenden GOZ-Ziffern extrahiert (Multi-Label),
 aus einem Label-Space von 10 Kern-Codes (häufigste Alltagsleistungen aus den
 Kategorien "Allgemeine zahnärztliche Leistungen" + "Konservierende
 Leistungen" der amtlichen Gebührenordnung, reduziert aus einer ursprünglich
-55-Code-Liste - siehe HANDOVER.md).
+55-Code-Liste - siehe Abschnitt "Limitierungen" unten).
 
 ## Zwei Wege, Domänenwissen einzubringen
 

@@ -12,11 +12,11 @@
 
 - Zeitbudget: 1-2 Tage — jede Aufgabe ist bewusst klein gehalten, kein Over-Engineering.
 - Label-Space: GOZ-Codes der Kategorien `A__Allgemeine_zahnärztliche_Leistungen` und `C__Konservierende_Leistungen` (55 Codes gesamt — passt in den vereinbarten Rahmen von ~40-60).
-- Aus dem MAIKA-Referenz-Repo wird **ausschließlich** verwendet: `goz_nr` + `bezeichnung` aus `goz_database_v4.json` (öffentliche Gebührenordnung) sowie die 5 `*synth_*.json`-Golden-Fixtures aus `tests/fixtures/golden_single_v2/`. Keine Liebold-Kommentare, Aliases, Synonyme, MAIKA-Embeddings, `real_*`-Fixtures oder MAIKA-Anwendungscode.
+- Aus einem Referenz-Repo eines bestehenden Produktivsystems wird **ausschließlich** verwendet: `goz_nr` + `bezeichnung` aus `goz_database_v4.json` (öffentliche Gebührenordnung) sowie 5 `*synth_*.json`-Golden-Fixtures aus `tests/fixtures/golden_single_v2/`. Keine proprietären Kommentare, Aliases, Synonyme, Embeddings, `real_*`-Fixtures oder Anwendungscode des Referenzsystems.
 - Basismodell: `meta-llama/Llama-3.2-3B-Instruct` (gated auf Hugging Face — Zustimmung zur Meta-Lizenz ist vorausgesetzt, siehe Task 1).
 - Finetune-Inferenz nutzt **kein Retrieval** — Domänenwissen steckt in den LoRA-Gewichten.
 - RAG-Baseline nutzt **dasselbe unveränderte Basismodell**, aber mit BM25+Embeddings(RRF)-Kandidaten als Prompt-Kontext.
-- Embeddings für die RAG-Baseline werden selbst berechnet (`intfloat/multilingual-e5-base`, offen, kein MAIKA-/OpenAI-Embedding).
+- Embeddings für die RAG-Baseline werden selbst berechnet (`intfloat/multilingual-e5-base`, offen, keine proprietären oder OpenAI-Embeddings).
 - Metrik: Precision/Recall/F1 pro Notiz (gemittelt) + Exact-Match-Rate, für beide Ansätze auf identischem Test-Split.
 - Doku, Kommentare und Prompts auf Deutsch (Marco lernt aktiv mit, gleicher Stil wie `sql-agent`).
 - Training läuft auf Colab (T4-GPU) — dieses Environment hat keine GPU, daher sind alle GPU-Schritte als manuell auszuführende Colab-Zellen markiert, mit exaktem erwartetem Ergebnis zur Verifikation.
@@ -111,14 +111,14 @@ Design-Spec: `docs/superpowers/specs/2026-07-27-goz-finetune-vs-rag-design.md`
 ## Was das hier ist
 
 Portfolio-Projekt von Marco Stang (Schwesterprojekt zu `sql-agent`). Ziel:
-PyTorch/LoRA-Finetuning-Lücke im Lebenslauf schließen und die maika-Story
-("Finetuning vs. RAG") mit einem echten Experiment untermauern.
+PyTorch/LoRA-Finetuning-Lücke im Lebenslauf schließen und die Frage
+"Finetuning vs. RAG" mit einem echten Experiment beantworten.
 
-Orientiert sich an einer Teilaufgabe von MAIKA (Notiz → GOZ-Codes), einem
-Produktivsystem, an dem Marco bei ILI DIGITAL AG arbeitet — verwendet aber
-**nur öffentliche GOZ-Daten** (amtliche Codeliste) und komplett neue,
-selbst generierte Trainingsdaten. Siehe Design-Spec, Abschnitt
-"Datenherkunft & IP-Abgrenzung", für die genaue Abgrenzung.
+Thematisch an einer Alltagsaufgabe aus dem zahnärztlichen Praxisbetrieb
+orientiert (Notiz → GOZ-Codes) — verwendet aber **nur öffentliche
+GOZ-Daten** (amtliche Codeliste) und komplett neue, selbst generierte
+Trainingsdaten. Siehe Design-Spec, Abschnitt "Datenherkunft &
+IP-Abgrenzung", für die genaue Abgrenzung.
 
 ## Wie hier gearbeitet wird
 
@@ -363,14 +363,14 @@ Expected: `3 passed`
 
 `scripts/curate_codes.py`:
 ```python
-"""Einmaliges Skript: liest die volle GOZ-Datenbank aus dem lokalen
-MAIKA-Checkout und schreibt die kuratierte, öffentliche Teilmenge nach
-data/goz_codes.json. Pfad zum MAIKA-Checkout wird per Argument übergeben,
-damit kein persönlicher absoluter Pfad im Repo landet.
+"""Einmaliges Skript: liest die volle GOZ-Datenbank aus einem lokalen
+Checkout eines Referenz-Repos und schreibt die kuratierte, öffentliche
+Teilmenge nach data/goz_codes.json. Pfad zum Checkout wird per Argument
+übergeben, damit kein persönlicher absoluter Pfad im Repo landet.
 
 Aufruf (einmalig, lokal, nicht Teil der automatisierten Tests):
     .venv/Scripts/python.exe scripts/curate_codes.py \
-        --source "C:/Users/Marco/Downloads/dentist-main/dentist-main/data/databases/goz_database_v4.json" \
+        --source "<pfad-zum-referenz-repo>/data/databases/goz_database_v4.json" \
         --out data/goz_codes.json
 """
 import argparse
@@ -403,11 +403,11 @@ if __name__ == "__main__":
     main()
 ```
 
-- [ ] **Step 6: Skript manuell einmal ausführen (lokal, mit echtem MAIKA-Checkout-Pfad)**
+- [ ] **Step 6: Skript manuell einmal ausführen (lokal, mit echtem Referenz-Repo-Pfad)**
 
 Run (Pfad an den tatsächlichen Download-Ordner anpassen):
 ```bash
-.venv/Scripts/python.exe scripts/curate_codes.py --source "C:/Users/Marco/Downloads/dentist-main/dentist-main/data/databases/goz_database_v4.json" --out data/goz_codes.json
+.venv/Scripts/python.exe scripts/curate_codes.py --source "<pfad-zum-referenz-repo>/data/databases/goz_database_v4.json" --out data/goz_codes.json
 ```
 Expected: Konsolenausgabe `55 Codes kuratiert -> data/goz_codes.json`, Datei
 `data/goz_codes.json` existiert und enthält 55 Einträge mit ausschließlich
@@ -775,8 +775,8 @@ Fixtures landen immer im Test-Set, weil sie die höchste Qualität haben
 (siehe Design-Spec).
 
 Das Glob-Pattern "*synth*.json" ist bewusst gewählt (nicht "*.json"): im
-MAIKA-Fixture-Ordner liegen auch real_*.json-Dateien mit echten
-Praxisfällen, die laut Design-Spec (Abschnitt "Datenherkunft &
+Fixture-Ordner des Referenzsystems liegen auch real_*.json-Dateien mit
+echten Praxisfällen, die laut Design-Spec (Abschnitt "Datenherkunft &
 IP-Abgrenzung") NIEMALS geladen werden dürfen - das Pattern verhindert das
 schon auf Dateisystem-Ebene, statt sich auf nachträgliches Filtern zu
 verlassen."""
@@ -837,7 +837,7 @@ Fixtures, splittet und schreibt train/test als JSONL.
 Aufruf:
     .venv/Scripts/python.exe scripts/build_dataset.py \
         --generated data/synthetic_notes.jsonl \
-        --golden-synth-dir "C:/Users/Marco/Downloads/dentist-main/dentist-main/tests/fixtures/golden_single_v2" \
+        --golden-synth-dir "<pfad-zum-referenz-repo>/tests/fixtures/golden_single_v2" \
         --out-dir data/
 """
 import argparse
@@ -885,7 +885,7 @@ if __name__ == "__main__":
 
 Run:
 ```bash
-.venv/Scripts/python.exe scripts/build_dataset.py --generated data/synthetic_notes.jsonl --golden-synth-dir "C:/Users/Marco/Downloads/dentist-main/dentist-main/tests/fixtures/golden_single_v2" --out-dir data/
+.venv/Scripts/python.exe scripts/build_dataset.py --generated data/synthetic_notes.jsonl --golden-synth-dir "<pfad-zum-referenz-repo>/tests/fixtures/golden_single_v2" --out-dir data/
 ```
 Expected: `data/train.jsonl` und `data/test.jsonl` existieren, Test-Set
 enthält alle 5 golden_synth-Beispiele plus den anteiligen Rest.

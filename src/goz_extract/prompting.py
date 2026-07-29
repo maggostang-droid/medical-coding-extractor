@@ -60,9 +60,9 @@ def parse_code_list_response(raw_text: str, valid_codes: set[str]) -> list[str]:
 
 
 def restrict_to_candidates(codes: list[str], candidates: list[GozCode]) -> list[str]:
-    """Validierungs-Layer fürs RAG-Modus (angelehnt an MAIKAs Post-
-    Processing-Prinzip: roher LLM-Output ist nicht automatisch das
-    Endergebnis): das Modell darf nur aus den angebotenen Kandidaten wählen
+    """Validierungs-Layer fürs RAG-Modus (Prinzip: roher LLM-Output ist
+    nicht automatisch das Endergebnis): das Modell darf nur aus den
+    angebotenen Kandidaten wählen
     - alles andere ist per Definition eine Fehlvorhersage (Halluzination
     oder ein Code, der gar nicht im Prompt stand) und wird rausgefiltert."""
     candidate_nrs = {c.goz_nr for c in candidates}

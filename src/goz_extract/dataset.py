@@ -4,8 +4,8 @@ Fixtures landen immer im Test-Set, weil sie die höchste Qualität haben
 (siehe Design-Spec).
 
 Das Glob-Pattern "*synth*.json" ist bewusst gewählt (nicht "*.json"): im
-MAIKA-Fixture-Ordner liegen auch real_*.json-Dateien mit echten
-Praxisfällen, die laut Design-Spec (Abschnitt "Datenherkunft &
+Fixture-Ordner des Referenzsystems liegen auch real_*.json-Dateien mit
+echten Praxisfällen, die laut Design-Spec (Abschnitt "Datenherkunft &
 IP-Abgrenzung") NIEMALS geladen werden dürfen - das Pattern verhindert das
 schon auf Dateisystem-Ebene, statt sich auf nachträgliches Filtern zu
 verlassen."""

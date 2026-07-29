@@ -14,8 +14,8 @@ class GozCode(BaseModel):
     "Datenherkunft & IP-Abgrenzung". `erweiterte_beschreibung` ist eine
     optionale Klartext-Erklärung + gängige Begriffe/Abkürzungen, generiert
     aus allgemeinem GOZ-Fachwissen (siehe `goz_extract.enrichment`) - kein
-    Bezug zu proprietären Kommentarwerken (z.B. Liebold/Raff/Wahl, die
-    urheberrechtlich geschützt sind) oder MAIKAs eigener Geschäftslogik.
+    Bezug zu proprietären, urheberrechtlich geschützten Kommentarwerken
+    oder fremder Geschäftslogik.
     """
 
     goz_nr: str

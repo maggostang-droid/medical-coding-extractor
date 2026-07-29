@@ -5,9 +5,9 @@ die RAG-Kandidatenliste im Prompt als auch die Datengenerierung besser mit
 dem jeweiligen Code arbeiten können.
 
 Bewusst nur aus allgemeinem GOZ-Fachwissen generiert, kein Bezug zu
-proprietären Kommentarwerken (z.B. Liebold/Raff/Wahl, urheberrechtlich
-geschützt) oder MAIKAs eigener Geschäftslogik - siehe Design-Spec,
-Abschnitt "Datenherkunft & IP-Abgrenzung". Prompt-Bau und Antwort-Parsing
+proprietären, urheberrechtlich geschützten Kommentarwerken oder fremder
+Geschäftslogik - siehe Design-Spec, Abschnitt "Datenherkunft &
+IP-Abgrenzung". Prompt-Bau und Antwort-Parsing
 sind bewusst von der tatsächlichen API-Anbindung getrennt, damit beides
 ohne Netzwerkzugriff testbar ist (gleiches Muster wie data_generation.py)."""
 import json

@@ -17,8 +17,8 @@ def tokenize(text: str) -> list[str]:
 
 def segment_note(note_text: str) -> list[str]:
     """Splittet eine Notiz grob in einzelne Behandlungsschritte (Trenner:
-    Satzzeichen). MAIKAs Produktivpipeline macht das über einen dedizierten
-    LLM-Call (siehe Handover); hier bewusst eine simple Regel statt eines
+    Satzzeichen). Ein Produktivsystem würde das über einen dedizierten
+    LLM-Call lösen; hier bewusst eine simple Regel statt eines
     dritten Modell-Calls. Zweck: Retrieval pro Schritt statt über die ganze
     Notiz auf einmal, weil ein kurz erwähnter, seltener Schritt (z.B. eine
     Anästhesie neben einer Füllung) sonst im BM25-/Embedding-Vektor der
