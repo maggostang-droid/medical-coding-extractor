@@ -285,47 +285,65 @@ gebaut, `pytest`: 62 passed, 1 skipped (2 neue Tests).
 alles läuft automatisch mit den neuen Daten/dem neuen Retrieval-Index,
 sobald das neu gebaute `goz-extract-src.zip` hochgeladen wird.
 
+## Anlauf 5: Ergebnis — Erfolg, kein Mode Collapse mehr (2026-07-29)
+
+Der Colab-Neustart mit den 325/81-Daten und 10 Epochen (~210 Trainings-Steps)
+ist durchgelaufen. **Zum ersten Mal kein Mode Collapse:**
+
+| Ansatz | Precision | Recall | F1 | Exact Match |
+|---|---|---|---|---|
+| RAG-Baseline | 0.40 | 0.70 | 0.48 | 0.07 |
+| LoRA-Finetune | 0.65 | 0.58 | 0.59 | 0.38 |
+
+Zum Vergleich der Verlauf: Anlauf 3 hatte Finetune-F1 0.05, Anlauf 4 F1 0.06
+(beide Male Kollaps auf 1-2 konstante Codes unabhängig vom Notiz-Inhalt).
+Jetzt F1 0.59, Exact Match 0.38, und das Finetune schlägt die RAG-Baseline
+in Precision/F1/Exact-Match deutlich (RAG hat höheren Recall - bekommt mehr
+Kandidaten angeboten, trifft dadurch öfter irgendeinen richtigen Code, aber
+seltener die exakte Kombination). Bestätigt die Anlauf-5-Hypothese: Die
+beiden vorherigen Kollapse waren tatsächlich "zu wenig absolute
+Trainingsschritte für die Aufgabenkomplexität" (Exposure Bias), kein
+struktureller Bug - mehr Daten (~54 statt ~18 Beispiele/Klasse) plus mehr
+Epochen (10 statt 3, ~210 statt ~24 Steps) haben das Lernsignal über die
+Schwelle gebracht.
+
+**Zwischenzeitlich aufgetretener und aufgeklärter Verdacht (kein Bug):**
+Beim manuellen Durchsehen einzelner Vorhersagen sah es zunächst so aus, als
+würde das Finetune bei Mehrfach-Code-Notizen systematisch nur einen Code
+statt aller nennen. Gezielte Nachprüfung an 5 Testfällen mit >1 erwartetem
+Code (roher Modell-Output vor dem Parsing ausgegeben) widerlegte das: das
+Modell generiert korrekt formatierte Mehrfach-Code-JSON-Arrays, wenn die
+Notiz das hergibt (4/5 Stichproben mit korrekter oder nahezu korrekter
+Codeanzahl). Das ursprüngliche Muster war reiner Stichproben-Zufall bei
+einer kleinen 8er-Zufallsauswahl (54% der Testnotizen haben ohnehin nur 1
+erwarteten Code) - kein Parsing- oder Generierungs-Bug. `parse_code_list_response`,
+`restrict_to_candidates` und die Trainings-Completion (`json.dumps(expected_codes)`)
+wurden dabei nochmal gegengelesen, alle unauffällig.
+
+**Bekannter, nicht blockierender Fund beim Adapter-Download:** Der von Colab
+heruntergeladene `adapters/goz-extract-llama32-3b/`-Ordner kam beim ersten
+Versuch mit vertauschten Dateiinhalten an (z.B. steckte in `adapter_config.json`
+die eigentliche `safetensors`-Binärdaten, in der kleinen `adapter_model (2).safetensors`
+dagegen die echte PEFT-Config) - klassischer Chrome/Colab-Bug bei zu schnell
+hintereinander angeklickten Einzeldownloads (stale Blob-URL wird
+wiederverwendet). Betraf nur den Adapter-Ordner, nicht die
+`predictions_*.jsonl` (die kamen sauber an, Eval lief problemlos). **Für die
+nächste Nutzung des Adapters** (z.B. Streamlit-Demo): über `!zip -r
+adapter.zip adapters/goz-extract-llama32-3b` in Colab als ein Download
+holen statt Einzeldateien, oder beim Einzeldownload nacheinander warten statt
+mehrere Klicks in Folge.
+
+`README.md` "## Ergebnisse" ist mit der Tabelle oben befüllt.
+`results/results.md`, `results/predictions_rag.jsonl`,
+`results/predictions_finetune.jsonl` sind committed.
+
 ## Sofort-nächster Schritt
 
-**Kompletter Neustart in Colab nötig, kein Live-Patch der laufenden
-Session** - Trainingsdaten, Epochenzahl und Save-Strategie haben sich seit
-dem letzten Lauf (Anlauf 4) nochmal geändert (siehe "Anlauf 5" oben):
-
-1. Laufzeit trennen und löschen, neue T4-GPU-Laufzeit verbinden.
-2. `notebooks/train_and_infer.ipynb` frisch hochladen (alle Fixes bereits
-   committed) + `goz-extract-src.zip` aus dem Repo-Root bei der
-   Upload-Zelle hochladen (bereits mit den 325/81 Train-/Test-Daten neu
-   gebaut).
-3. Von oben durchlaufen. **Erwartete Ausgabe bei Zelle 5:** `10 325 81`
-   (nicht mehr `10 125 31`).
-4. **Bei der Sanity-Check-Zelle in Abschnitt 3 genau hinschauen** - falls
-   die Assertion fehlschlägt, nicht überspringen (siehe Markdown-Zelle
-   direkt danach).
-5. Training dauert jetzt länger (10 statt 3 Epochen, ~200 statt ~24-63
-   Steps) - bei nur 325 Beispielen auf einer T4 aber immer noch im
-   Minutenbereich.
-6. Nach dem kompletten Lauf: Ergebnisse herunterladen, lokal nach
-   `results/`/`adapters/` legen (alte Dateien überschreiben - sind ohnehin
-   veraltet), `scripts/run_eval.py --results-dir results/` laufen lassen.
-
-### Was zu erwarten ist / wie du die neuen Zahlen einordnest
-
-- **Das ist jetzt der erste Lauf, bei dem "zu wenig Daten/Steps" als
-  Erklärung für einen weiteren Mode Collapse tatsächlich ausscheiden
-  würde** - ~54 Beispiele/Klasse (vorher ~18, davor ~6) und ~200 Steps
-  (vorher ~24, davor ~63 auf dem 55-Code-Space). Falls das Finetune
-  *immer noch* auf 1-2 konstante Codes kollabiert: nicht nochmal an Daten
-  oder Epochenzahl drehen, sondern LoRA-Kapazität (`target_modules` um
-  `gate_proj`/`up_proj`/`down_proj` erweitern, `r` erhöhen) oder
-  Lernrate als nächste, bisher unverbrauchte Hypothese testen.
-- **RAG-Baseline sollte durch den `top_n=5`-Fix** (Retrieval grenzt jetzt
-  tatsächlich ein statt immer alle 10 Codes zu zeigen) **spürbar
-  präziser werden.** Falls nicht: rohen, ungeparsten Modell-Output
-  ausgeben lassen (`print(generated)` vor dem
-  `parse_code_list_response(...)`-Aufruf in `generate_codes`,
-  `src/goz_extract/inference.py`).
-- Mit 81 Test-Notizen (10-15 pro Code) ist die Eval-Varianz deutlich
-  geringer als bei den vorherigen 31 - Zahlen sind diesmal aussagekräftiger.
+Kein Colab-Lauf mehr nötig - das Kernexperiment ist mit einem plausiblen,
+erzählbaren Ergebnis abgeschlossen. Offen sind nur noch die in "Offene
+Punkte danach" gelisteten Nacharbeiten (Streamlit-Demo im Browser testen -
+dafür den Adapter erst sauber neu herunterladen, s.o. -, IP-Disclosure-Frage
+zur Design-Spec, GitHub-Push).
 
 ## Kritischer Code-Review, Runde 1 (2026-07-28)
 
@@ -509,34 +527,28 @@ Colab-Debugging gefundene und gefixte Bugs" oben.)
   neu gebaut** mit Stand Anlauf 5 (325/81 Train-/Test-Daten + alle
   Code-Änderungen) — bei weiteren Code-/Daten-Änderungen erneut ausführen.
 
-## Aktueller Datei-Status (nicht committed, bewusst)
+## Aktueller Datei-Status
 
 - `results/predictions_rag.jsonl`, `results/predictions_finetune.jsonl`,
-  `results/results.md` — **von Anlauf 4** (10-Code-Space, JSON-Format,
-  RAG F1 0.24 / Finetune F1 0.06, Finetune kollabiert auf `2060`/`2030` —
-  siehe "Anlauf-4-Ergebnisse" oben), liegen lokal, sind NICHT committed.
-  Durch Anlauf 5 (325/81 statt 125/31 Notizen, 10 statt 3 Epochen,
-  `top_n=5` statt 12) erneut überholt. `results.md` ist nicht gitignored
-  (soll später mit echten Zahlen committed werden), aktuell bewusst noch
-  nicht eingecheckt. **Nach dem Anlauf-5-Colab-Lauf diese drei Dateien
-  überschreiben, dann erst committen.**
-- `adapters/goz-extract-llama32-3b/` — LoRA-Adapter von Anlauf 4, trainiert
-  auf 125 Notizen über 24 Steps. Komplett gitignored (bleibt immer lokal),
-  wird beim Anlauf-5-Lauf überschrieben (10 Epochen statt 3, `save_total_limit=1`
-  jetzt gesetzt).
+  `results/results.md` — **finale Anlauf-5-Zahlen** (RAG F1 0.48, Finetune
+  F1 0.59, siehe "Anlauf 5: Ergebnis" oben), committed.
+- `adapters/goz-extract-llama32-3b/` — LoRA-Adapter von Anlauf 5 (325
+  Notizen, 10 Epochen/~210 Steps). Komplett gitignored (bleibt immer
+  lokal). **Der lokal abgelegte Ordner hat vertauschte Dateiinhalte**
+  (Download-Bug, siehe "Anlauf 5: Ergebnis" oben) - vor Nutzung (z.B.
+  Streamlit-Demo) sauber neu herunterladen.
 
 ## Offene Punkte danach (nicht blockierend, aber nicht vergessen)
 
-1. **README.md "## Ergebnisse"** ist noch ein Platzhalter-Kommentar —
-   sobald echte, plausible Zahlen aus `results/results.md` vorliegen, dort
-   einfügen.
+1. ~~README.md "## Ergebnisse" mit echten Zahlen befüllen~~ — erledigt
+   (Anlauf-5-Zahlen eingetragen).
 2. **Streamlit-Demo (`app.py`) wurde noch nie im Browser getestet** — nur
-   statisch verifiziert (AST-Parse, Signatur-Check). Sobald ein
-   funktionierender Adapter da ist: `.venv-data` reicht nicht (braucht
-   Torch/Transformers/Streamlit) — dafür bräuchte es doch das volle
-   `pip install -e ".[dev]"` lokal (mit den obigen Hänger-Fallstricken im
-   Hinterkopf), oder die Demo bewusst nur als "noch nicht verifiziert"
-   kennzeichnen.
+   statisch verifiziert (AST-Parse, Signatur-Check). Braucht zuerst einen
+   sauber heruntergeladenen Adapter (aktueller lokaler Ordner hat
+   vertauschte Dateiinhalte, siehe "Anlauf 5: Ergebnis" oben). Danach:
+   `.venv-data` reicht nicht (braucht Torch/Transformers/Streamlit) —
+   dafür bräuchte es das volle `pip install -e ".[dev]"` lokal (mit den
+   obigen Hänger-Fallstricken im Hinterkopf).
 3. **IP-Disclosure-Frage zur Design-Spec** (noch unentschieden): Der finale
    Reviewer merkte an, dass `docs/superpowers/specs/…design.md` intern recht
    detailliert beschreibt, wie MAIKA bei ILI DIGITAL AG technisch

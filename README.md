@@ -23,10 +23,19 @@ Leistungen" der amtlichen Gebührenordnung, reduziert aus einer ursprünglich
 
 ## Ergebnisse
 
-⏳ Training läuft noch nicht — siehe `notebooks/train_and_infer.ipynb`.
-Tabelle wird nach dem Colab-Lauf ergänzt.
+Llama-3.2-3B-Instruct, 10 kuratierte GOZ-Kern-Codes, 325 Trainings- /
+81 Testnotizen (synthetisch generiert, siehe `scripts/generate_data.py`):
 
-<!-- Tabelle aus results/results.md einfügen, sobald Task 10+11 gelaufen sind -->
+| Ansatz | Precision | Recall | F1 | Exact Match |
+|---|---|---|---|---|
+| RAG-Baseline | 0.40 | 0.70 | 0.48 | 0.07 |
+| LoRA-Finetune | 0.65 | 0.58 | 0.59 | 0.38 |
+
+Die RAG-Baseline (BM25 + Embedding-Retrieval, Kandidatenliste im Prompt)
+hat höheren Recall — sie bekommt mehr Kandidaten angeboten und trifft daher
+öfter irgendeinen richtigen Code. Das LoRA-Finetune ist präziser und trifft
+deutlich öfter die exakte Code-Kombination, weil das Wissen in den
+Modellgewichten steckt statt über Retrieval nachgereicht zu werden.
 
 ## Setup
 
