@@ -16,12 +16,18 @@ from goz_extract.schema import GozCode
 
 load_dotenv()  # HF_TOKEN fürs gated meta-llama-Modell, siehe .env
 
-st.set_page_config(page_title="GOZ-Extraktion: Finetune vs. RAG", layout="wide")
+st.set_page_config(page_title="GOZ-Extraktion: Finetune vs. RAG", page_icon="🦷", layout="wide")
 
 MODEL_ID = "meta-llama/Llama-3.2-3B-Instruct"
 
+BEISPIEL_NOTIZEN = {
+    "Füllung (einfach)": "Zahn 36: Infiltrationsanästhesie, Karies excaviert, Kompositfüllung zweiflächig gelegt.",
+    "Wurzelkanal": "Zahn 46 distal: Exkavation, Konditionierung, Adhäsiv, Kompo geschichtet, finiert. Biss kontrolliert.",
+    "Mehrere Schritte": "Regio 34-33: Interdent. Gingiva abgedr., IOS-Scan mit Farbaufn., digit. Biss reg.",
+}
 
-@st.cache_resource
+
+@st.cache_resource(show_spinner="Lade Modelle (einmalig, danach im Cache) …")
 def load_resources():
     codes = [
         GozCode(**c)
@@ -60,34 +66,101 @@ def load_resources():
     return code_by_nr, valid_codes, bm25_index, embedding_index, base_tokenizer, finetuned_model
 
 
+def code_card(nr: str, code_by_nr: dict[str, GozCode]) -> None:
+    """Zeigt einen GOZ-Code als lesbare Karte statt als rohen JSON-Eintrag."""
+    code = code_by_nr[nr]
+    with st.container(border=True):
+        st.markdown(f"**GOZ {nr}** — {code.bezeichnung}")
+        if code.erweiterte_beschreibung:
+            st.caption(code.erweiterte_beschreibung)
+
+
+def code_list(title: str, nrs: list[str], code_by_nr: dict[str, GozCode]) -> None:
+    st.markdown(f"**{title}**")
+    if not nrs:
+        st.info("Keine passenden GOZ-Codes gefunden.")
+        return
+    for nr in nrs:
+        code_card(nr, code_by_nr)
+
+
 (code_by_nr, valid_codes, bm25_index, embedding_index,
  base_tokenizer, finetuned_model) = load_resources()
 
-st.title("GOZ-Code-Extraktion: LoRA-Finetuning vs. RAG-Baseline")
-note_text = st.text_area(
-    "Behandlungsnotiz",
-    "Zahn 36: Infiltrationsanästhesie, Karies excaviert, Kompositfüllung zweiflächig gelegt.",
+st.title("🦷 GOZ-Code-Extraktion: LoRA-Finetuning vs. RAG")
+
+st.markdown(
+    "Diese Demo vergleicht zwei Ansätze, um aus einer zahnärztlichen "
+    "Behandlungsnotiz automatisch die passenden **GOZ-Abrechnungscodes** "
+    "(amtliche Gebührenordnung für Zahnärzte) zu extrahieren — einmal mit "
+    "**Retrieval-Augmented Generation (RAG)**, einmal mit einem eigens "
+    "**feingetunten Modell (LoRA)**. Beide laufen auf demselben "
+    "Basismodell (Llama-3.2-3B-Instruct), damit der Vergleich fair ist."
 )
 
-if st.button("Extrahieren"):
-    candidate_nrs = retrieve_candidates(note_text, bm25_index, embedding_index, top_n=5)
-    candidates = [code_by_nr[nr] for nr in candidate_nrs]
+with st.expander("ℹ️ Wie funktionieren die beiden Ansätze?"):
+    st.markdown(
+        """
+**RAG-Baseline** — *Nachschlagen statt Auswendiglernen*
+1. Aus den 10 möglichen GOZ-Codes werden per Textsuche (BM25 + Embeddings)
+   die 5 am besten passenden **Kandidaten** herausgesucht.
+2. Diese Kandidatenliste wird dem Modell zusammen mit der Notiz im Prompt
+   gezeigt — es wählt daraus aus, statt die Codes selbst zu kennen.
+3. Vorteil: das Basismodell braucht kein Zahnmedizin-Fachwissen. Nachteil:
+   die Vorhersage ist nur so gut wie die Suche, die die Kandidaten liefert.
 
-    col_rag, col_finetune = st.columns(2)
+**LoRA-Finetune** — *Auswendiggelerntes Fachwissen*
+1. Das Basismodell wurde mit einem kleinen zusätzlichen Gewichtssatz
+   (LoRA-Adapter) auf 325 Beispielnotizen trainiert.
+2. Zur Laufzeit gibt es **kein Nachschlagen** — das Modell entscheidet
+   direkt aus dem, was es beim Training gelernt hat.
+3. Vorteil: kann eigene Formulierungen/Fachjargon verinnerlichen. Nachteil:
+   nur so gut wie die Trainingsdaten, die es gesehen hat.
 
-    with col_rag:
-        st.subheader("RAG-Baseline")
+**Ergebnis der Auswertung** über 81 unabhängige Testnotizen (siehe
+`results/results.md`): RAG erreicht F1 0.48 (höherer Recall, findet öfter
+*irgendeinen* richtigen Code), das Finetune F1 0.59 (höhere Precision,
+trifft öfter die *exakte* Code-Kombination).
+        """
+    )
+
+st.subheader("Behandlungsnotiz eingeben")
+beispiel = st.selectbox(
+    "Beispielnotiz laden (optional) — oder unten eigenen Text eingeben",
+    ["— eigenen Text eingeben —"] + list(BEISPIEL_NOTIZEN.keys()),
+)
+vorbefuellt = BEISPIEL_NOTIZEN.get(beispiel, "Zahn 36: Infiltrationsanästhesie, Karies excaviert, Kompositfüllung zweiflächig gelegt.")
+note_text = st.text_area("Notiztext", vorbefuellt, height=100)
+
+extrahieren = st.button("🔍 GOZ-Codes extrahieren", type="primary")
+
+if extrahieren:
+    with st.spinner("Suche Retrieval-Kandidaten und generiere Vorhersagen …"):
+        candidate_nrs = retrieve_candidates(note_text, bm25_index, embedding_index, top_n=5)
+        candidates = [code_by_nr[nr] for nr in candidate_nrs]
+
         # disable_adapter() schaltet den LoRA-Adapter kurzzeitig ab, damit
         # die RAG-Baseline auf den unveränderten Basis-Gewichten läuft,
         # ohne eine zweite Modellkopie zu brauchen.
         with finetuned_model.disable_adapter():
             rag_codes = generate_codes(finetuned_model, base_tokenizer, note_text, valid_codes, candidates=candidates)
-        st.write([f"{nr}: {code_by_nr[nr].bezeichnung}" for nr in rag_codes])
-        with st.expander("Retrieval-Kandidaten (Prompt-Kontext)"):
-            st.write([f"{nr}: {code_by_nr[nr].bezeichnung}" for nr in candidate_nrs])
+
+        finetune_codes = generate_codes(finetuned_model, base_tokenizer, note_text, valid_codes, candidates=None)
+
+    st.divider()
+    col_rag, col_finetune = st.columns(2)
+
+    with col_rag:
+        st.subheader("🔎 RAG-Baseline")
+        st.caption("Wählt aus den unten gezeigten Retrieval-Kandidaten aus.")
+        code_list("Vorhergesagte Codes", rag_codes, code_by_nr)
+        with st.expander(f"Retrieval-Kandidaten, die dem Modell gezeigt wurden ({len(candidate_nrs)})"):
+            for nr in candidate_nrs:
+                code_card(nr, code_by_nr)
 
     with col_finetune:
-        st.subheader("LoRA-Finetune")
-        finetune_codes = generate_codes(finetuned_model, base_tokenizer, note_text, valid_codes, candidates=None)
-        st.write([f"{nr}: {code_by_nr[nr].bezeichnung}" for nr in finetune_codes])
-        st.caption("Kein Retrieval zur Inferenzzeit — Wissen steckt in den LoRA-Gewichten.")
+        st.subheader("🧠 LoRA-Finetune")
+        st.caption("Kein Retrieval zur Laufzeit — Wissen steckt in den LoRA-Gewichten.")
+        code_list("Vorhergesagte Codes", finetune_codes, code_by_nr)
+else:
+    st.caption("👆 Notiz eingeben oder Beispiel wählen, dann auf den Button klicken.")
