@@ -16,6 +16,7 @@ dependencies = [
     "peft>=0.12",
     "datasets>=2.20",
     "streamlit>=1.37",
+    "bitsandbytes>=0.50",
 ]
 
 [project.optional-dependencies]

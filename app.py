@@ -4,12 +4,17 @@ import json
 from pathlib import Path
 
 import streamlit as st
+import torch
+from dotenv import load_dotenv
 from peft import PeftModel
 from sentence_transformers import SentenceTransformer
+from transformers import BitsAndBytesConfig
 
 from goz_extract.inference import generate_codes, load_model
 from goz_extract.retrieval import BM25Index, EmbeddingIndex, retrieve_candidates
 from goz_extract.schema import GozCode
+
+load_dotenv()  # HF_TOKEN fürs gated meta-llama-Modell, siehe .env
 
 st.set_page_config(page_title="GOZ-Extraktion: Finetune vs. RAG", layout="wide")
 
@@ -42,9 +47,15 @@ def load_resources():
     # Lädt das Basismodell nur einmal (statt wie zuvor zwei komplette
     # Kopien mit je eigenem load_model()-Aufruf) und schaltet den LoRA-
     # Adapter für die Finetune-Variante per PEFT dazu - halbiert den
-    # Speicherbedarf. torch_dtype="auto" statt hartkodiertem bfloat16,
-    # weil diese Demo auf einer CPU-Maschine laufen soll.
-    base_model, base_tokenizer = load_model(MODEL_ID, torch_dtype="auto")
+    # Speicherbedarf. 8-bit-Quantisierung (~3-4GB statt ~6GB in fp16),
+    # weil diese Demo auf einer CPU-Maschine mit wenig freiem RAM laufen
+    # soll (voller fp16-Load hat hier zu einem OOM-Absturz geführt).
+    base_model, base_tokenizer = load_model(
+        MODEL_ID,
+        torch_dtype=torch.float32,
+        device_map={"": "cpu"},
+        quantization_config=BitsAndBytesConfig(load_in_8bit=True),
+    )
     finetuned_model = PeftModel.from_pretrained(base_model, "adapters/goz-extract-llama32-3b")
     return code_by_nr, valid_codes, bm25_index, embedding_index, base_tokenizer, finetuned_model
 

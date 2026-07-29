@@ -18,6 +18,7 @@ def load_model(
     adapter_path: str | None = None,
     torch_dtype=torch.float16,
     device_map="auto",
+    quantization_config=None,
 ):
     """Lädt Modell + Tokenizer.
 
@@ -34,10 +35,17 @@ def load_model(
     Speicher: device_map={"": 0} übergeben, um alles auf eine GPU zu
     zwingen (kein Offload) - Llama 3.2 3B passt in fp16 (~6GB) meist auch
     ohne "auto" komplett auf eine T4.
+
+    quantization_config (z.B. BitsAndBytesConfig(load_in_8bit=True)) - für
+    die CPU-Streamlit-Demo auf Rechnern mit wenig freiem RAM, wo das volle
+    fp16-Modell (~6GB) nicht mehr sicher ins verfügbare RAM passt.
     """
     tokenizer = AutoTokenizer.from_pretrained(model_id)
     model = AutoModelForCausalLM.from_pretrained(
-        model_id, torch_dtype=torch_dtype, device_map=device_map
+        model_id,
+        torch_dtype=torch_dtype,
+        device_map=device_map,
+        quantization_config=quantization_config,
     )
     if adapter_path is not None:
         model = PeftModel.from_pretrained(model, adapter_path)

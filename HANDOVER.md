@@ -527,6 +527,46 @@ Colab-Debugging gefundene und gefixte Bugs" oben.)
   neu gebaut** mit Stand Anlauf 5 (325/81 Train-/Test-Daten + alle
   Code-Änderungen) — bei weiteren Code-/Daten-Änderungen erneut ausführen.
 
+## Streamlit-Demo erfolgreich getestet (2026-07-29)
+
+Der frisch heruntergeladene Adapter kam diesmal sauber an (über `!zip -r
+adapter.zip ...` als ein Download statt Einzeldateien - siehe unten), war
+aber wieder doppelt verschachtelt (`adapters/adapters/goz-extract-llama32-3b/`
+statt direkt `adapters/goz-extract-llama32-3b/`, die schon vorher bekannte
+Zip-Entpack-Falle). Mit `mv`/`rmdir` einmalig korrigiert.
+
+**Erster echter Start ist mit einem Segmentation Fault abgestürzt**, exakt
+beim Start des Ladens der Llama-Gewichte. Root-Cause-Untersuchung (siehe
+`superpowers:systematic-debugging`): freier RAM auf der Maschine lag beim
+Absturz bei nur ~2,3GB (von 16GB total - VSCode, Chrome, Spotify, Windows
+Defender belegen den Rest), das volle fp16-Modell braucht aber allein für
+die Gewichte ~6GB. Klassischer OOM, der bei PyTorch/C-Extensions als
+Segfault statt sauberer Python-Exception auftritt.
+
+**Fix:** `app.py`/`load_model()` (`src/goz_extract/inference.py`) laden das
+Basismodell jetzt mit `BitsAndBytesConfig(load_in_8bit=True)` (~3-4GB statt
+~6GB), `device_map={"": "cpu"}`. Empirisch verifiziert mit einem
+Standalone-Testskript (Modell + Adapter laden, dann `generate_codes()`
+aufrufen) - lief sauber durch, keine Regression. `bitsandbytes>=0.50` neu in
+`pyproject.toml`. Danach lief die Demo im Browser erfolgreich durch: Notiz
+eingeben, "Extrahieren" klicken, RAG-Baseline und LoRA-Finetune zeigen
+unterschiedliche, plausible Vorhersagen nebeneinander.
+
+**Weitere kleine Fixes dabei:**
+- `app.py` hatte kein `load_dotenv()` - `HF_TOKEN` (gated `meta-llama`-Modell)
+  wurde dadurch nicht aus `.env` gelesen. Ergänzt.
+- Massenhafte `ModuleNotFoundError: No module named 'torchvision'`-Tracebacks
+  im Log sind harmlos - `transformers` scannt beim Start lazy alle
+  Modell-Typen (u.a. Vision-Modelle wie Aria/BEiT/ZoeDepth) durch, die
+  torchvision brauchen würden. Kein Bezug zum Llama/PEFT-Pfad, kein
+  Absturz-Zusammenhang - einmal gegengecheckt und als Rauschen eingestuft.
+
+**Für den nächsten lokalen Start:** `.venv` (nicht `.venv-data`) hat jetzt
+alle Dependencies inkl. `bitsandbytes`, `streamlit run app.py` sollte direkt
+durchlaufen. Falls doch wieder ein RAM-Engpass auftritt: erst Speicher
+freimachen (Browser-Tabs etc.), 8-bit-Quantisierung allein war beim Test
+ausreichend.
+
 ## Aktueller Datei-Status
 
 - `results/predictions_rag.jsonl`, `results/predictions_finetune.jsonl`,
@@ -534,21 +574,17 @@ Colab-Debugging gefundene und gefixte Bugs" oben.)
   F1 0.59, siehe "Anlauf 5: Ergebnis" oben), committed.
 - `adapters/goz-extract-llama32-3b/` — LoRA-Adapter von Anlauf 5 (325
   Notizen, 10 Epochen/~210 Steps). Komplett gitignored (bleibt immer
-  lokal). **Der lokal abgelegte Ordner hat vertauschte Dateiinhalte**
-  (Download-Bug, siehe "Anlauf 5: Ergebnis" oben) - vor Nutzung (z.B.
-  Streamlit-Demo) sauber neu herunterladen.
+  lokal), liegt jetzt sauber (nicht mehr verschachtelt) und wurde
+  erfolgreich für die Streamlit-Demo geladen.
+- `.venv/` (volles Environment mit Torch/Transformers/Streamlit/bitsandbytes)
+  ist jetzt lokal aufgesetzt, zusätzlich zum schlanken `.venv-data`.
 
 ## Offene Punkte danach (nicht blockierend, aber nicht vergessen)
 
 1. ~~README.md "## Ergebnisse" mit echten Zahlen befüllen~~ — erledigt
    (Anlauf-5-Zahlen eingetragen).
-2. **Streamlit-Demo (`app.py`) wurde noch nie im Browser getestet** — nur
-   statisch verifiziert (AST-Parse, Signatur-Check). Braucht zuerst einen
-   sauber heruntergeladenen Adapter (aktueller lokaler Ordner hat
-   vertauschte Dateiinhalte, siehe "Anlauf 5: Ergebnis" oben). Danach:
-   `.venv-data` reicht nicht (braucht Torch/Transformers/Streamlit) —
-   dafür bräuchte es das volle `pip install -e ".[dev]"` lokal (mit den
-   obigen Hänger-Fallstricken im Hinterkopf).
+2. ~~Streamlit-Demo (`app.py`) im Browser testen~~ — erledigt (2026-07-29),
+   siehe "Streamlit-Demo erfolgreich getestet" unten.
 3. **IP-Disclosure-Frage zur Design-Spec** (noch unentschieden): Der finale
    Reviewer merkte an, dass `docs/superpowers/specs/…design.md` intern recht
    detailliert beschreibt, wie MAIKA bei ILI DIGITAL AG technisch
