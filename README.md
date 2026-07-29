@@ -58,10 +58,10 @@ Demo starten (braucht die von Colab heruntergeladenen Artefakte unter
 
 ## Datenherkunft
 
-Nur die amtliche GOZ-Codeliste (öffentliche Gebührenordnung) und komplett
-selbst generierte, synthetische Trainingsdaten. Details siehe
-`docs/superpowers/specs/2026-07-27-goz-finetune-vs-rag-design.md`,
-Abschnitt "Datenherkunft & IP-Abgrenzung".
+Nur die amtliche GOZ-Codeliste (öffentliche Gebührenordnung, `data/goz_codes.json`)
+und komplett selbst generierte, synthetische Trainings-/Testnotizen
+(`scripts/generate_data.py`). Keine realen Patienten-/Praxisdaten, kein
+Code oder Trainingsmaterial aus Drittsystemen.
 
 ## Limitierungen
 
