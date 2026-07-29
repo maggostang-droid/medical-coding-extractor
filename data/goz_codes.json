@@ -1,0 +1,52 @@
+[
+  {
+    "goz_nr": "0065",
+    "bezeichnung": "Optisch-elektronische Abformung einschließlich vorbereitender Maßnahmen, einfache digitale Bissregistrierung und Archivierung, je Kieferhälfte oder Frontzahnbereich",
+    "erweiterte_beschreibung": "Digitaler Abdruck mit Intraoralscanner statt herkömmlicher Abformmasse, inklusive Vorbereitung und Speicherung der Daten. Umgangssprachlich: Digitaler Abdruck, Intraoralscan, IOS, digitale Abformung."
+  },
+  {
+    "goz_nr": "0070",
+    "bezeichnung": "Vitalitätsprüfung eines Zahnes oder mehrerer Zähne einschließlich Vergleichstest, je Sitzung",
+    "erweiterte_beschreibung": "Prüfung ob ein Zahn noch lebt (vitaler Nerv) mittels Kälte- oder Wärmetest, meist im Vergleich zu gesunden Nachbarzähnen. Umgangssprachlich: Vitalitätstest, Kältetest, Sensibilitätsprüfung, Pulpatest."
+  },
+  {
+    "goz_nr": "0090",
+    "bezeichnung": "Intraorale Infiltrationsanästhesie",
+    "erweiterte_beschreibung": "Örtliche Betäubung durch Einspritzen des Betäubungsmittels direkt neben den zu behandelnden Zahn. Umgangssprachlich: Spritze, lokale Anästhesie, Infiltration, Betäubung."
+  },
+  {
+    "goz_nr": "0100",
+    "bezeichnung": "Intraorale Leitungsanästhesie",
+    "erweiterte_beschreibung": "Örtliche Betäubung durch Ausschalten eines größeren Nervenastes, wodurch mehrere Zähne gleichzeitig betäubt werden. Umgangssprachlich: Leitungsanästhesie, Blockadeanästhesie, Mandibularanästhesie, Stammanästhesie."
+  },
+  {
+    "goz_nr": "2030",
+    "bezeichnung": "Besondere Maßnahmen beim Präparieren oder Füllen von Kavitäten (z. B. Separieren, Beseitigen störenden Zahnfleisches, Stillung einer übermäßigen Papillenblutung), je Kieferhälfte oder Frontzahnbereich",
+    "erweiterte_beschreibung": "Zusätzliche Maßnahmen bei schwierigen Füllungen wie Zähne auseinanderdrängen, störendes Zahnfleisch entfernen oder starke Zahnfleischblutung stoppen. Umgangssprachlich: Separieren, Blutstillung, Zahnfleischmanagement, Präparationsmaßnahmen."
+  },
+  {
+    "goz_nr": "2040",
+    "bezeichnung": "Anlegen von Spanngummi, je Kieferhälfte oder Frontzahnbereich",
+    "erweiterte_beschreibung": "Anlegen eines Gummituchs zur Isolierung der Zähne von Speichel und Feuchtigkeit während der Behandlung. Umgangssprachlich: Kofferdam, Spanngummi, Gummidam, Trockenlegung."
+  },
+  {
+    "goz_nr": "2060",
+    "bezeichnung": "Präparieren einer Kavität und Restauration mit Kompositmaterialien, in Adhäsivtechnik (Konditionieren), einflächig, ggf. einschließlich Mehrschichttechnik, einschließlich Polieren, ggf. einschließlich Verwendung von Inserts",
+    "erweiterte_beschreibung": "Zahnfarbene Kunststofffüllung mit Klebtechnik für eine Fläche, in mehreren Schichten aufgetragen und poliert. Umgangssprachlich: Kompositfüllung, Kunststofffüllung, Adhäsivfüllung, weiße Füllung einflächig."
+  },
+  {
+    "goz_nr": "2290",
+    "bezeichnung": "Entfernung einer Einlagefüllung, einer Krone, eines Brückenankers, Abtrennen eines Brückengliedes oder Steges oder Ähnliches",
+    "erweiterte_beschreibung": "Entfernen einer alten Füllung, Krone oder Brücke, die fest einzementiert oder geklebt ist. Umgangssprachlich: Kronenentfernung, Inlay entfernen, Brücke abtrennen, Dezemention."
+  },
+  {
+    "goz_nr": "2350",
+    "bezeichnung": "Amputation und Versorgung der vitalen Pulpa einschließlich Exkavieren",
+    "erweiterte_beschreibung": "Teilentfernung des lebenden Zahnnervs bei tiefer Karies und Abdeckung mit Medikament, um den restlichen Nerv zu erhalten. Umgangssprachlich: Pulpotomie, Vitalamputation, Nervteilentfernung, Pulpenamputation."
+  },
+  {
+    "goz_nr": "2410",
+    "bezeichnung": "Aufbereitung eines Wurzelkanals auch retrograd, je Kanal, gegebenenfalls in mehreren Sitzungen",
+    "erweiterte_beschreibung": "Reinigung und Erweiterung des Wurzelkanals mit speziellen Instrumenten bei Wurzelbehandlung, pro Kanal. Umgangssprachlich: Wurzelkanalaufbereitung, WK-Aufbereitung, Kanalaufbereitung, Endo-Aufbereitung."
+  }
+]
