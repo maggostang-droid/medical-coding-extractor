@@ -1,4 +1,6 @@
-# GOZ-Code-Extraktion: LoRA-Finetuning vs. RAG-Baseline
+# Medical Coding Extractor
+
+GOZ-Code-Extraktion: LoRA-Finetuning vs. RAG-Baseline.
 
 Portfolio-Projekt: Ein LoRA-feingetuntes Llama-3.2-3B-Instruct extrahiert
 GOZ-Ziffern aus zahnärztlichen Behandlungsnotizen — verglichen gegen eine
@@ -36,6 +38,16 @@ hat höheren Recall — sie bekommt mehr Kandidaten angeboten und trifft daher
 öfter irgendeinen richtigen Code. Das LoRA-Finetune ist präziser und trifft
 deutlich öfter die exakte Code-Kombination, weil das Wissen in den
 Modellgewichten steckt statt über Retrieval nachgereicht zu werden.
+
+## Was schiefging (und warum das dazugehört)
+
+Der Weg zu diesen Zahlen war kein Selbstläufer: Zwei frühe Trainingsläufe
+kollabierten in nahezu konstante Vorhersagen — das Modell gab für fast
+jede Notiz dieselbe Code-Kombination aus. Systematisches Debugging führte
+das zunächst auf klassisches Exposure Bias zurück (gesunde
+Trainings-Loss-Kurve, aber kollabierende freie Generierung), danach auf
+die eigentliche Ursache: schlicht zu wenige Gradientenschritte. Erst nach
+dieser Korrektur entstanden die Ergebnisse in der Tabelle oben.
 
 ## Setup
 
