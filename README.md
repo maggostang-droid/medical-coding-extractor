@@ -7,6 +7,13 @@ GOZ-Ziffern aus zahnärztlichen Behandlungsnotizen — verglichen gegen eine
 RAG-Baseline auf demselben, unveränderten Basismodell. Ziel: eine konkrete,
 messbare Antwort auf "schlägt Finetuning RAG?".
 
+<!-- TODO(Marco): Screenshot der lokalen Streamlit-Demo hier einfügen:
+     ![Medical Coding Extractor — Streamlit-Demo](docs/demo.png) -->
+
+Keine gehostete Live-Demo: Training und Inferenz laufen auf Colab (GPU),
+die Streamlit-Demo läuft lokal mit den von Colab heruntergeladenen
+Adapter-Artefakten — siehe Setup unten.
+
 ## Aufgabe
 
 Aus einer Behandlungsnotiz (kann mehrere Behandlungsschritte einer Sitzung
@@ -22,6 +29,17 @@ Leistungen" der amtlichen Gebührenordnung, reduziert aus einer ursprünglich
   Kandidaten-Codes, dasselbe Basismodell wählt daraus per Prompt.
 - **LoRA-Finetune:** Domänenwissen steckt in den LoRA-Gewichten, kein
   Retrieval zur Inferenzzeit.
+
+```mermaid
+flowchart LR
+    N[Behandlungsnotiz] --> R["RAG-Baseline<br/>BM25 + e5-Embeddings<br/>→ Kandidaten-Codes im Prompt"]
+    N --> L["LoRA-Finetune<br/>Wissen in den Gewichten,<br/>kein Retrieval"]
+    B[Llama-3.2-3B-Instruct<br/>identisches Basismodell] --- R
+    B --- L
+    R --> C[GOZ-Codes<br/>Multi-Label]
+    L --> C
+    C --> E["Eval auf 81 Testnotizen:<br/>Precision / Recall / F1 / Exact Match"]
+```
 
 ## Ergebnisse
 
@@ -84,3 +102,12 @@ Code oder Trainingsmaterial aus Drittsystemen.
   Praxisfällen im großen Stil
 - RAG-Baseline nutzt eine vereinfachte Retrieval-Pipeline ohne die
   Segmentierungs- und Validierungsschritte eines Produktivsystems
+
+## Portfolio-Kontext
+
+Dieses Projekt ist Teil von **[MARCO.OS](https://maggostang-droid.github.io/marco-os/)**,
+dem interaktiven Portfolio von Marco Stang. Schwesterprojekte:
+
+- [SQL Copilot](https://github.com/maggostang-droid/sql-copilot) — LangGraph-Agent für Text-to-SQL mit Guardrails und Selbstkorrektur
+- [Review Risk Predictor](https://github.com/maggostang-droid/review-risk-predictor) — erklärbare ML-Risikovorhersage (React/FastAPI)
+- [Ask-Marco Assistant](https://github.com/maggostang-droid/ask-marco-assistant) — Chat, der alle Portfolio-Projekte kennt (Context-Stuffing + MCP-Server)
