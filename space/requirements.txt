@@ -1,0 +1,7 @@
+# Bewusst winzig: diese Demo zeigt vorberechnete Ausgaben und laedt kein
+# Modell. Torch, Transformers, PEFT, sentence-transformers und rank-bm25
+# werden hier nirgends importiert (siehe Modul-Docstring in app.py) — sie
+# einzutragen wuerde den Build auf Community Cloud nur verlangsamen und
+# fragiler machen. pydantic braucht goz_extract.schema.
+streamlit==1.38.0
+pydantic==2.8.2

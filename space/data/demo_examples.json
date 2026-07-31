@@ -1,0 +1,1308 @@
+[
+ {
+  "text": "Zahn 46: Präparation der Kavität, einflächige Restauration mit Kompositmaterial in Adhäsivtechnik, Konditionierung, Mehrschichtung, abschließende Politur.",
+  "expected": [
+   "2060"
+  ],
+  "rag": [
+   "2060",
+   "2030"
+  ],
+  "finetune": [
+   "2030"
+  ],
+  "difficulty": "easy"
+ },
+ {
+  "text": "Zahn 36 starke Schmerzen. Infiltration gesetzt, alte Krone musste runter. Nach Dezemention deutlich kariöser Defekt sichtbar, WK-Aufbereitung zwei Kanäle durchgeführt.",
+  "expected": [
+   "0090",
+   "2290",
+   "2410"
+  ],
+  "rag": [
+   "2410",
+   "2290",
+   "2350",
+   "2030",
+   "2060"
+  ],
+  "finetune": [
+   "0090",
+   "2290",
+   "2350"
+  ],
+  "difficulty": "medium"
+ },
+ {
+  "text": "Zahn 36 reagiert nicht auf Kältetest, kein Vergleich zu Nachbarzähnen nötig. WK-Aufbereitung mesial und distal durchgeführt, je Kanal einzeln bearbeitet.",
+  "expected": [
+   "0070",
+   "2410"
+  ],
+  "rag": [
+   "2410",
+   "2350",
+   "0070",
+   "2060",
+   "2290"
+  ],
+  "finetune": [
+   "0070",
+   "2410"
+  ],
+  "difficulty": "medium"
+ },
+ {
+  "text": "Digitaler Abdruck OK und UK mittels Intraoralscan durchgeführt. Vorbereitung der Zahnoberflächen, digitale Bissregistrierung und Archivierung der Daten abgeschlossen.",
+  "expected": [
+   "0065"
+  ],
+  "rag": [
+   "0065",
+   "2350",
+   "2060",
+   "2040"
+  ],
+  "finetune": [
+   "0065"
+  ],
+  "difficulty": "easy"
+ },
+ {
+  "text": "Brücke abtrennen zwischen 14 und 15. Nach Dezemention Abtrennung des Brückenglieds mit Diamantscheibe, Entfernung der beiden Brückenanker.",
+  "expected": [
+   "2290"
+  ],
+  "rag": [
+   "2290",
+   "2350",
+   "2040",
+   "2030"
+  ],
+  "finetune": [
+   "2290"
+  ],
+  "difficulty": "easy"
+ },
+ {
+  "text": "Brücke 24-26 defekt, Zwischenglied mobilisiert. Steg zwischen 24 und 25 mit Scheibe durchtrennt, Anker 26 vorsichtig entfernt. Loka ohne Probleme.",
+  "expected": [
+   "2290",
+   "0090"
+  ],
+  "rag": [
+   "2290",
+   "2060",
+   "2040"
+  ],
+  "finetune": [
+   "2030",
+   "2040"
+  ],
+  "difficulty": "medium"
+ },
+ {
+  "text": "Zahn 26: Blockadeanästhesie gesetzt. Pulpenamputation mit Amputation der koronalen Pulpa und medikamentöser Einlage. Wurzelkanalaufbereitung der palatinalen Wurzel begonnen.",
+  "expected": [
+   "0100",
+   "2350",
+   "2410"
+  ],
+  "rag": [
+   "2350",
+   "2060",
+   "0090"
+  ],
+  "finetune": [
+   "0100",
+   "2350",
+   "2410"
+  ],
+  "difficulty": "easy"
+ },
+ {
+  "text": "Stg. Papillenblutg. UK-li., Koff. angef., Separ. m. Matrize 37",
+  "expected": [
+   "2030"
+  ],
+  "rag": [
+   "2410",
+   "2060",
+   "2040"
+  ],
+  "finetune": [
+   "0070"
+  ],
+  "difficulty": "hard"
+ },
+ {
+  "text": "Zahn 46: Trepanation, WK-Aufbereitung dreier Kanäle mit Nickel-Titan-Feilen, medikamentöse Einlage",
+  "expected": [
+   "2410"
+  ],
+  "rag": [
+   "2410",
+   "2350",
+   "2060",
+   "2040",
+   "2030"
+  ],
+  "finetune": [
+   "2350",
+   "2040"
+  ],
+  "difficulty": "easy"
+ },
+ {
+  "text": "Alte Verblendkrone 21 abgetrennt, Interimskrone chairside angefertigt u. eingesetzt",
+  "expected": [
+   "2290"
+  ],
+  "rag": [
+   "2060",
+   "2290",
+   "2350",
+   "2030"
+  ],
+  "finetune": [
+   "2290"
+  ],
+  "difficulty": "hard"
+ },
+ {
+  "text": "Wurzelkanalaufbereitung Zahn 36 mesial und distal. WK-Aufbereitung beider Kanäle mit maschinellen NiTi-Feilen, Spülung mit NaOCl.",
+  "expected": [
+   "2410"
+  ],
+  "rag": [
+   "2410",
+   "2060"
+  ],
+  "finetune": [
+   "0090"
+  ],
+  "difficulty": "easy"
+ },
+ {
+  "text": "Pat. stellte sich mit Beschwerden 21 vor. Klinisch Fraktur palat. Keramikschale. Nach Lokalanästh. Vestibulum Resementation mit Adhäsivsystem durchgeführt.",
+  "expected": [
+   "0090"
+  ],
+  "rag": [
+   "2060",
+   "2030"
+  ],
+  "finetune": [
+   "0090"
+  ],
+  "difficulty": "hard"
+ },
+ {
+  "text": "15 Sekundärkaries, Exkav. bis Pulpennähe, Ca(OH)2-Unterfüllung, Dentinadhäsiv, Kompo mehrsch. 1-fl.",
+  "expected": [
+   "2060"
+  ],
+  "rag": [
+   "2060",
+   "2030"
+  ],
+  "finetune": [
+   "2030"
+  ],
+  "difficulty": "hard"
+ },
+ {
+  "text": "Alt-Keramik 36 entf., Neupräp. Vollkr., Abdr. genomm.",
+  "expected": [
+   "2290"
+  ],
+  "rag": [
+   "2060",
+   "2410"
+  ],
+  "finetune": [
+   "0100"
+  ],
+  "difficulty": "hard"
+ },
+ {
+  "text": "Teilkrone 15 mit Kästen und Rillen, Kaufläche komplett rekonstruiert. Injektion bukkal gesetzt.",
+  "expected": [
+   "0100"
+  ],
+  "rag": [
+   "2060",
+   "2350",
+   "2410"
+  ],
+  "finetune": [
+   "0100"
+  ],
+  "difficulty": "medium"
+ },
+ {
+  "text": "Zahn 46: Blockadeanästhesie rechts, Spanngummi UK re, Kanalaufbereitung in 3 Kanälen abgeschlossen.",
+  "expected": [
+   "0100",
+   "2040",
+   "2410"
+  ],
+  "rag": [
+   "2410",
+   "2040",
+   "2060",
+   "2290"
+  ],
+  "finetune": [
+   "0100",
+   "2040"
+  ],
+  "difficulty": "medium"
+ },
+ {
+  "text": "Zahn 36 reagiert nicht mehr auf Kältetest, Pulpatest negativ. Nach Leitungsanästhesie OK WK-Aufbereitung 3 Kanäle durchgeführt.",
+  "expected": [
+   "0070",
+   "0100",
+   "2410"
+  ],
+  "rag": [
+   "0070",
+   "0100",
+   "2030",
+   "2410"
+  ],
+  "finetune": [
+   "0100",
+   "2040"
+  ],
+  "difficulty": "medium"
+ },
+ {
+  "text": "Vitalitätsprüfung Zahn 15 mit Vergleichstest. Präparation zweiflächige Kavität mit Kompositrestauration unter Verwendung von Matrize und Unterfüllung.",
+  "expected": [
+   "0070"
+  ],
+  "rag": [
+   "2060",
+   "2030",
+   "2410",
+   "0070"
+  ],
+  "finetune": [
+   "0070"
+  ],
+  "difficulty": "easy"
+ },
+ {
+  "text": "Vitalitätsprüfung Zahn 21 mittels Kältetest durchgeführt, Vergleichstest mit Nachbarzahn negativ. Zahn reagiert nicht.",
+  "expected": [
+   "0070"
+  ],
+  "rag": [
+   "0070"
+  ],
+  "finetune": [
+   "0070"
+  ],
+  "difficulty": "easy"
+ },
+ {
+  "text": "Anlegen von Kofferdam im Frontzahnbereich vor Füllungstherapie. Anschließend Wurzelkanalfüllung Zahn 21 mit Guttapercha.",
+  "expected": [
+   "2040"
+  ],
+  "rag": [
+   "2040",
+   "2410"
+  ],
+  "finetune": [
+   "2040"
+  ],
+  "difficulty": "easy"
+ },
+ {
+  "text": "Vitalitätsprüfung der Zähne 11, 12, 21 mit Kältereiz und elektrometrischem Vergleichstest durchgeführt. Befund dokumentiert.",
+  "expected": [
+   "0070"
+  ],
+  "rag": [
+   "0070",
+   "2060"
+  ],
+  "finetune": [
+   "0070"
+  ],
+  "difficulty": "easy"
+ },
+ {
+  "text": "Versorgung Zahn 24 durch Teilkrone mit Retentionskästen einschließlich Rekonstruktion der gesamten Kaufläche. Digitale Abformung beider OK-Quadranten mittels IOS.",
+  "expected": [
+   "0065"
+  ],
+  "rag": [
+   "0065",
+   "2410",
+   "0070"
+  ],
+  "finetune": [
+   "2040"
+  ],
+  "difficulty": "easy"
+ },
+ {
+  "text": "Zahn 46: Infiltrationsanästhesie, Hohlkehlpräparation und Versorgung durch Vollkrone.",
+  "expected": [
+   "0090"
+  ],
+  "rag": [
+   "0090",
+   "2060",
+   "2040"
+  ],
+  "finetune": [
+   "0090",
+   "2060"
+  ],
+  "difficulty": "easy"
+ },
+ {
+  "text": "36 Stammanäs., Inlay raus, Exkav., Komp. adhäsiv 1-fl. gelegt",
+  "expected": [
+   "0100",
+   "2290",
+   "2060"
+  ],
+  "rag": [
+   "2410",
+   "2060",
+   "2040"
+  ],
+  "finetune": [
+   "2290",
+   "2030"
+  ],
+  "difficulty": "hard"
+ },
+ {
+  "text": "Zahn 21: Pulpotomie mit Nervteilentfernung, Kanalaufbereitung mesial begonnen",
+  "expected": [
+   "2350",
+   "2410"
+  ],
+  "rag": [
+   "2350",
+   "2030",
+   "2410"
+  ],
+  "finetune": [
+   "2350"
+  ],
+  "difficulty": "medium"
+ },
+ {
+  "text": "Sensibilitätsprüfung 12 und 11 wegen Trauma. Beide Zähne vital, Pulpatest regelrecht.",
+  "expected": [
+   "0070"
+  ],
+  "rag": [
+   "0070",
+   "2030",
+   "2040",
+   "0100"
+  ],
+  "finetune": [
+   "0070"
+  ],
+  "difficulty": "medium"
+ },
+ {
+  "text": "IOS UK-li. u. Frontzahn-Bereich durchgef., dig. Biss reg., Archiv. abgeschl.",
+  "expected": [
+   "0065"
+  ],
+  "rag": [
+   "2410",
+   "2060",
+   "2350",
+   "0065"
+  ],
+  "finetune": [
+   "0070",
+   "2040",
+   "2290"
+  ],
+  "difficulty": "hard"
+ },
+ {
+  "text": "IOS OK/UK für Schienentherapie, Bissreg. digital erfasst",
+  "expected": [
+   "0065"
+  ],
+  "rag": [
+   "0065",
+   "2060",
+   "2290"
+  ],
+  "finetune": [
+   "0065"
+  ],
+  "difficulty": "hard"
+ },
+ {
+  "text": "Regio 34-33: Interdent. Gingiva abgedr., IOS-Scan mit Farbaufn., digit. Biss reg.",
+  "expected": [
+   "2030",
+   "0065"
+  ],
+  "rag": [
+   "2410",
+   "2060",
+   "0065"
+  ],
+  "finetune": [
+   "0065"
+  ],
+  "difficulty": "hard"
+ },
+ {
+  "text": "Intraoralscan UK links sowie Frontzahnbereich für Brückenplanung. Optisch-elektronische Abformung inklusive vorbereitender Maßnahmen abgeschlossen.",
+  "expected": [
+   "0065"
+  ],
+  "rag": [
+   "0065",
+   "2040",
+   "2410"
+  ],
+  "finetune": [
+   "0065"
+  ],
+  "difficulty": "easy"
+ },
+ {
+  "text": "14 okklusal: LA Septanest, Präp unter Kühlung, Matrizensystem angelegt, Dycal-Unterfüllung, Flow + Komposit A2.",
+  "expected": [
+   "0100"
+  ],
+  "rag": [
+   "2410",
+   "2060",
+   "2040"
+  ],
+  "finetune": [
+   "0090",
+   "2040"
+  ],
+  "difficulty": "hard"
+ },
+ {
+  "text": "Mandibularanästh. re., Präp. 47 mesial, weiße Füllung einflächig Adhäsiv, Zahnfleischmanagement interprox.",
+  "expected": [
+   "0100",
+   "2060",
+   "2030"
+  ],
+  "rag": [
+   "2060",
+   "2030"
+  ],
+  "finetune": [
+   "2060"
+  ],
+  "difficulty": "hard"
+ },
+ {
+  "text": "Zahn 36: Infiltrationsanästhesie gesetzt, anschließend tiefe Karies exkaviert. Pulpotomie durchgeführt, vitale Pulpa mit Ca(OH)2 abgedeckt.",
+  "expected": [
+   "0090",
+   "2350"
+  ],
+  "rag": [
+   "0090",
+   "2350"
+  ],
+  "finetune": [
+   "0090",
+   "2350"
+  ],
+  "difficulty": "easy"
+ },
+ {
+  "text": "Endodontische Behandlung Zahn 21: Elektrometrische Längenbestimmung des Wurzelkanals, Aufbereitung des Kanals abgeschlossen.",
+  "expected": [
+   "2410"
+  ],
+  "rag": [
+   "2410",
+   "2040",
+   "0090"
+  ],
+  "finetune": [
+   "0065"
+  ],
+  "difficulty": "easy"
+ },
+ {
+  "text": "15 distal-okklusal-palatinal Sekundärkaries. Nach Infiltrationsanästhesie alte Füllung raus, Unterfüllung gelegt, dann Kompositfüllung dreiflächig mit Matrize.",
+  "expected": [
+   "0090"
+  ],
+  "rag": [
+   "2060",
+   "0090"
+  ],
+  "finetune": [
+   "0090",
+   "2040",
+   "2060"
+  ],
+  "difficulty": "medium"
+ },
+ {
+  "text": "46 distal: Exk., Konditionierung, Adhäsiv, Kompo geschichtet, finiert. Biss kontrolliert.",
+  "expected": [
+   "2060"
+  ],
+  "rag": [
+   "2060",
+   "2350",
+   "2410"
+  ],
+  "finetune": [
+   "2030"
+  ],
+  "difficulty": "hard"
+ },
+ {
+  "text": "UK li Stammanästh. gesetzt, 36 Nervteilentfernung m. Kalziumhydroxid-Unterfüllung",
+  "expected": [
+   "0100",
+   "2350"
+  ],
+  "rag": [
+   "2290",
+   "2040",
+   "2410"
+  ],
+  "finetune": [
+   "0100"
+  ],
+  "difficulty": "hard"
+ },
+ {
+  "text": "Brücke 24-26 Abtrennen Brückenglied 25. Lokale Anästhesie gesetzt. Stümpfe gereinigt, Abdrücke digital erstellt.",
+  "expected": [
+   "2290",
+   "0090",
+   "0065"
+  ],
+  "rag": [
+   "2350",
+   "2290",
+   "2060",
+   "2410",
+   "2040"
+  ],
+  "finetune": [
+   "0090",
+   "2030"
+  ],
+  "difficulty": "medium"
+ },
+ {
+  "text": "OK-Scan digital gemacht für die Brücke, beide Seiten gescannt plus Biss aufgenommen",
+  "expected": [
+   "0065"
+  ],
+  "rag": [
+   "2060",
+   "0065",
+   "2290"
+  ],
+  "finetune": [
+   "0065"
+  ],
+  "difficulty": "medium"
+ },
+ {
+  "text": "Zahn 16: Alte Einlagefüllung entfernt, Kavität präpariert und Restauration mit Kompositmaterialien in Adhäsivtechnik, einflächig mit Mehrschichttechnik und Polieren.",
+  "expected": [
+   "2290",
+   "2060"
+  ],
+  "rag": [
+   "2060",
+   "2030"
+  ],
+  "finetune": [
+   "2290",
+   "2060"
+  ],
+  "difficulty": "easy"
+ },
+ {
+  "text": "Vorbereitung für Krone 21: IOS von regio 11-23 plus Antagonist, Bissregistrierung digital erfasst und archiviert.",
+  "expected": [
+   "0065"
+  ],
+  "rag": [
+   "0065",
+   "2290",
+   "2410",
+   "2060",
+   "2030"
+  ],
+  "finetune": [
+   "0065"
+  ],
+  "difficulty": "medium"
+ },
+ {
+  "text": "Kältetest an Zahn 21 durchgeführt. Anschließend Kavität präpariert und Restauration mit Kompositmaterialien einflächig, Mehrschichttechnik und poliert.",
+  "expected": [
+   "0070",
+   "2060"
+  ],
+  "rag": [
+   "2060",
+   "2040"
+  ],
+  "finetune": [
+   "0070",
+   "2060"
+  ],
+  "difficulty": "easy"
+ },
+ {
+  "text": "36: Sens.-prüfung grenzw., Pulpotomie + medik. Einl., anschl. definit. Vers. m. Kunststoff einflächig adhäsiv",
+  "expected": [
+   "0070",
+   "2350",
+   "2060"
+  ],
+  "rag": [
+   "2350",
+   "2060",
+   "0090"
+  ],
+  "finetune": [
+   "0070",
+   "2350"
+  ],
+  "difficulty": "hard"
+ },
+ {
+  "text": "Sensibilitätsprüfung 21-23 mit CO2-Schnee, alle pos., Blockadeanästhesie N. infraorbitalis, Trockenlegung Front OK angelegt",
+  "expected": [
+   "0070",
+   "0100",
+   "2040"
+  ],
+  "rag": [
+   "0100",
+   "2040",
+   "2410"
+  ],
+  "finetune": [
+   "0070"
+  ],
+  "difficulty": "hard"
+ },
+ {
+  "text": "Re UK6 tief subging. Karies, Kofferd. angelegt li. dorsal, Infiltr. Ubistesin 1 Amp., Exk. u. adhäs. Kompositaufbau, Politur",
+  "expected": [
+   "0090",
+   "2040"
+  ],
+  "rag": [
+   "2350",
+   "2060",
+   "2040"
+  ],
+  "finetune": [
+   "2030"
+  ],
+  "difficulty": "hard"
+ },
+ {
+  "text": "37 Komposit mesial, Betäubung appliziert, Trockenlegung mittels Spanngummi, Papillenblutung gestillt",
+  "expected": [
+   "0090",
+   "2040",
+   "2030"
+  ],
+  "rag": [
+   "2060",
+   "0100"
+  ],
+  "finetune": [
+   "0090",
+   "2040"
+  ],
+  "difficulty": "medium"
+ },
+ {
+  "text": "Sens.prüfung 21-23 m. Kältetest pos., Vitalitätstest unauff.",
+  "expected": [
+   "0070"
+  ],
+  "rag": [
+   "0070",
+   "2040"
+  ],
+  "finetune": [
+   "0070"
+  ],
+  "difficulty": "hard"
+ },
+ {
+  "text": "Lok. Anästhesie 36, Trockenlegung 3. Q., Zahnfleischmanagement distal wg. übermäßiger Papillenblutung",
+  "expected": [
+   "0090",
+   "2040",
+   "2030"
+  ],
+  "rag": [
+   "2410",
+   "2030",
+   "2040",
+   "2060"
+  ],
+  "finetune": [
+   "0090",
+   "2040"
+  ],
+  "difficulty": "hard"
+ },
+ {
+  "text": "47 prof. Karies, Exkavation bis knapp Pulpa, direkte Überkappung m. MTA. Anschl. IOS-Scan re. UK-Seitenzahngebiet.",
+  "expected": [
+   "0065"
+  ],
+  "rag": [
+   "2350",
+   "2060"
+  ],
+  "finetune": [
+   "2040"
+  ],
+  "difficulty": "hard"
+ },
+ {
+  "text": "Abtrennen des Brückengliedes zwischen Zahn 13 und 15, Präparation des Zahnes 14 für provisorische Versorgung.",
+  "expected": [
+   "2290"
+  ],
+  "rag": [
+   "2350",
+   "2030",
+   "0070"
+  ],
+  "finetune": [
+   "2030"
+  ],
+  "difficulty": "easy"
+ },
+ {
+  "text": "Spanngummi re. UK-Hälfte, Wurzelkanalaufbereitung Zahn 37 mesial und distal in zwei Sitzungen",
+  "expected": [
+   "2040",
+   "2410",
+   "2410"
+  ],
+  "rag": [
+   "2040",
+   "2410"
+  ],
+  "finetune": [
+   "2040"
+  ],
+  "difficulty": "easy"
+ },
+ {
+  "text": "UK links Stammanästhesie gelegt, dann 36 distal Kompositfüllung in Adhäsivtechnik, einflächig poliert.",
+  "expected": [
+   "0100",
+   "2060"
+  ],
+  "rag": [
+   "0100",
+   "2060",
+   "2030"
+  ],
+  "finetune": [
+   "0100"
+  ],
+  "difficulty": "medium"
+ },
+ {
+  "text": "Brücke 24-26 abtrennen, Pfeiler zu locker. 25 Sensibilitätsprüfung positiv, vital.",
+  "expected": [
+   "2290",
+   "0070"
+  ],
+  "rag": [
+   "2350",
+   "2030",
+   "0070"
+  ],
+  "finetune": [
+   "2030"
+  ],
+  "difficulty": "medium"
+ },
+ {
+  "text": "16 o: Beseit. Zahnfleischüberschuss, Blutstillung, anschl. Adhäsivfüllung einflächig mehrschichtig",
+  "expected": [
+   "2030",
+   "2060"
+  ],
+  "rag": [
+   "2030",
+   "2060",
+   "2410",
+   "2290"
+  ],
+  "finetune": [
+   "2030"
+  ],
+  "difficulty": "hard"
+ },
+ {
+  "text": "Intraoralscan UK re. + Frontzahnber., opt.-elektron. Abformung m. Vorbereitung, digitale Registr. gespeichert",
+  "expected": [
+   "0065"
+  ],
+  "rag": [
+   "0065",
+   "2410",
+   "2060",
+   "2350"
+  ],
+  "finetune": [
+   "0065"
+  ],
+  "difficulty": "hard"
+ },
+ {
+  "text": "Zahn 21: Kofferdam angelegt, einflächige Kunststofffüllung labial. Konditionieren, Mehrschichttechnik angewendet, abschließend poliert.",
+  "expected": [
+   "2040",
+   "2060"
+  ],
+  "rag": [
+   "2060",
+   "2040"
+  ],
+  "finetune": [
+   "2030"
+  ],
+  "difficulty": "easy"
+ },
+ {
+  "text": "47 Pulpotomie vit., Blutstillung, Kalziumhydroxid-Abdeckung, anschl. Stiftaufbau vorbereitet aber Pat. abgebrochen - WK-Länge vorher apex-lokal. gemessen 19,5mm",
+  "expected": [
+   "2350"
+  ],
+  "rag": [
+   "2350",
+   "2060"
+  ],
+  "finetune": [
+   "2030",
+   "2040"
+  ],
+  "difficulty": "hard"
+ },
+ {
+  "text": "Vitaltest pos., tiefe Kav. UK 6, Vitalamputation durchgef., ZF-Management m. Separieren re UK nötig, Komposit einfl. in Adhäsiv, pol.",
+  "expected": [
+   "0070",
+   "2350",
+   "2030",
+   "2060"
+  ],
+  "rag": [
+   "2350",
+   "2060",
+   "2030",
+   "2410"
+  ],
+  "finetune": [
+   "0070",
+   "2350",
+   "2030"
+  ],
+  "difficulty": "hard"
+ },
+ {
+  "text": "Lokalanästhesie 12, Stumpfpräparation für Krone begonnen, heute nur angeschliffen. Abdruck beim nächsten Mal.",
+  "expected": [
+   "0090"
+  ],
+  "rag": [
+   "2060",
+   "2040"
+  ],
+  "finetune": [
+   "0090",
+   "2040"
+  ],
+  "difficulty": "medium"
+ },
+ {
+  "text": "Regio 14: Intraoralscan durchgeführt, störendes Zahnfleisch entfernt vor Scan, WK-Aufbereitung palatinal abgeschlossen",
+  "expected": [
+   "0065",
+   "2030",
+   "2410"
+  ],
+  "rag": [
+   "2410",
+   "2040"
+  ],
+  "finetune": [
+   "0065",
+   "2030"
+  ],
+  "difficulty": "medium"
+ },
+ {
+  "text": "Zahn 36: Alte Krone entfernt, darunter kariöse Substanz. Kompositfüllung einflächig nach Exkavation. Poliert.",
+  "expected": [
+   "2290",
+   "2060"
+  ],
+  "rag": [
+   "2060",
+   "2350"
+  ],
+  "finetune": [
+   "2290"
+  ],
+  "difficulty": "medium"
+ },
+ {
+  "text": "16 tief exk., Vitalamputation m. Ca(OH)2, prov. Deckfüllung Cav.",
+  "expected": [
+   "2350"
+  ],
+  "rag": [
+   "2350",
+   "2030"
+  ],
+  "finetune": [
+   "2350"
+  ],
+  "difficulty": "hard"
+ },
+ {
+  "text": "Zahn 36: VT pos., tiefe Karies bis Pulpa. VA durchgeführt, Ca(OH)2-Abdeckung, prov. Verschl.",
+  "expected": [
+   "0070",
+   "2350"
+  ],
+  "rag": [
+   "2350",
+   "2060",
+   "0090"
+  ],
+  "finetune": [
+   "0100"
+  ],
+  "difficulty": "hard"
+ },
+ {
+  "text": "Tiefe Karies 46 mesial, direkte Überkappung notwendig. Exkavation unter Kofferdam li. UK, vitale Amputation, Ca(OH)2 Unterfüllung, provisorisch verschlossen",
+  "expected": [
+   "2040",
+   "2350"
+  ],
+  "rag": [
+   "2350",
+   "2060",
+   "2030",
+   "2290"
+  ],
+  "finetune": [
+   "2350",
+   "2290"
+  ],
+  "difficulty": "medium"
+ },
+ {
+  "text": "Retraktionsfaden bukkal gelegt, 37 MOD-Rekonstruktion Adhäsiv, Schichtung, Gingiva-Blutung gestillt",
+  "expected": [
+   "2030"
+  ],
+  "rag": [
+   "2060",
+   "2350",
+   "2410"
+  ],
+  "finetune": [
+   "2030"
+  ],
+  "difficulty": "hard"
+ },
+ {
+  "text": "Brücke 14-16 gelockert, Abtrennen Brückenglied erfolgt nach lokaler Anästhesie. Abutments intakt.",
+  "expected": [
+   "0090",
+   "2290"
+  ],
+  "rag": [
+   "2290",
+   "2060",
+   "0090"
+  ],
+  "finetune": [
+   "2030"
+  ],
+  "difficulty": "medium"
+ },
+ {
+  "text": "Vitalitätsprüfung mittels Kältetest Zahn 36 durchgeführt, Vergleichstest mit Nachbarzahn positiv. Anschließend Leitungsanästhesie im UK links gesetzt.",
+  "expected": [
+   "0070",
+   "0100"
+  ],
+  "rag": [
+   "0070",
+   "0100"
+  ],
+  "finetune": [
+   "0070",
+   "0100"
+  ],
+  "difficulty": "easy"
+ },
+ {
+  "text": "Revision 11: Kanal mb u. palatinal retro aufbereitet, NaOCl-Spülung, medikamentöse Einlage. Kontrolle in 7d.",
+  "expected": [
+   "2410"
+  ],
+  "rag": [
+   "2410",
+   "2060",
+   "0100",
+   "2290",
+   "2350"
+  ],
+  "finetune": [
+   "0090"
+  ],
+  "difficulty": "hard"
+ },
+ {
+  "text": "Zahn 46 vital, Sensibilitätsprüfung OK. Lokale Anästhesie gesetzt, dann Vitalamputation mit Medikament versorgt.",
+  "expected": [
+   "0070",
+   "0090",
+   "2350"
+  ],
+  "rag": [
+   "0090",
+   "2350",
+   "0070"
+  ],
+  "finetune": [
+   "0100",
+   "2350"
+  ],
+  "difficulty": "medium"
+ },
+ {
+  "text": "Infiltr. 14, Kofferdam je Kieferhälfte, Kronenentfernung 14",
+  "expected": [
+   "0090",
+   "2040",
+   "2290"
+  ],
+  "rag": [
+   "2410",
+   "2040",
+   "2290"
+  ],
+  "finetune": [
+   "0090"
+  ],
+  "difficulty": "hard"
+ },
+ {
+  "text": "16 okklusal-mesial-distal Komposit in Mehrschichttechnik nach Kofferdamanlage, Adj-Technik, Matrize gelegt",
+  "expected": [
+   "2030"
+  ],
+  "rag": [
+   "2060",
+   "2040",
+   "2410"
+  ],
+  "finetune": [
+   "2030"
+  ],
+  "difficulty": "hard"
+ },
+ {
+  "text": "Entfernung der alten Einlagefüllung am Zahn 46, anschließend Kavitätenpräparation und Versorgung mit Kompositfüllung einflächig in Adhäsivtechnik.",
+  "expected": [
+   "2290",
+   "2060"
+  ],
+  "rag": [
+   "2060",
+   "2350",
+   "2040"
+  ],
+  "finetune": [
+   "2290"
+  ],
+  "difficulty": "easy"
+ },
+ {
+  "text": "Pat. klagt über Schmerzen 21. Kältetest positiv, Vergleichstest mit 11 unauffällig. Keine Behandlung heute.",
+  "expected": [
+   "0070"
+  ],
+  "rag": [
+   "0070",
+   "2060"
+  ],
+  "finetune": [
+   "0070"
+  ],
+  "difficulty": "medium"
+ },
+ {
+  "text": "Vitalitätstest 21-23 mit Kälte durchgeführt, Vergleich zu Nachbarzähnen, 21 reagiert nicht",
+  "expected": [
+   "0070"
+  ],
+  "rag": [
+   "0070",
+   "2350"
+  ],
+  "finetune": [
+   "0070"
+  ],
+  "difficulty": "medium"
+ },
+ {
+  "text": "Brückenglied 25 durchtrennt, Anker entf., 24+26 Prov.-Versorg. im dir. Verf. m. Situationsabdr.",
+  "expected": [
+   "2290"
+  ],
+  "rag": [
+   "2410",
+   "2290",
+   "2060",
+   "2350",
+   "2030"
+  ],
+  "finetune": [
+   "2030"
+  ],
+  "difficulty": "hard"
+ },
+ {
+  "text": "Abformung beider Kiefer mit Bissfixierung zur Planung, anschließend Vitalitätsprüfung der Zähne 12 und 22 sowie adhäsive Befestigung eines Veneers am Zahn 11",
+  "expected": [
+   "0070"
+  ],
+  "rag": [
+   "2060",
+   "2030",
+   "0065"
+  ],
+  "finetune": [
+   "2040",
+   "0070"
+  ],
+  "difficulty": "easy"
+ },
+ {
+  "text": "45: Lokale Anästhesie, Zahnfleischmanagement distal erforderlich, Trockenlegung mit Spanngummi, dann MOD-Komposit.",
+  "expected": [
+   "0090",
+   "2030",
+   "2040"
+  ],
+  "rag": [
+   "2060",
+   "2040",
+   "2410"
+  ],
+  "finetune": [
+   "0090",
+   "2030",
+   "2040"
+  ],
+  "difficulty": "medium"
+ },
+ {
+  "text": "Wurzelkanalbehandlung Zahn 36: Elektrometrische Längenbestimmung durchgeführt, anschließend Aufbereitung des distalen Kanals.",
+  "expected": [
+   "2410"
+  ],
+  "rag": [
+   "2410",
+   "2060",
+   "2030"
+  ],
+  "finetune": [
+   "0090"
+  ],
+  "difficulty": "easy"
+ },
+ {
+  "text": "Kronenentfernung Zahn 16. Dezemention der alten Krone mit Kronenentferner, anschließend Entfernung der verbliebenen Zementanteile.",
+  "expected": [
+   "2290"
+  ],
+  "rag": [
+   "2290",
+   "2350",
+   "2040",
+   "2030",
+   "0065"
+  ],
+  "finetune": [
+   "2290"
+  ],
+  "difficulty": "easy"
+ },
+ {
+  "text": "46 Mandibularanästhesie re., Kanalaufbereitung m+d abgeschlossen, Termin zur Obturation",
+  "expected": [
+   "0100",
+   "2410"
+  ],
+  "rag": [
+   "0100",
+   "2410",
+   "2060"
+  ],
+  "finetune": [
+   "0100",
+   "2410"
+  ],
+  "difficulty": "hard"
+ },
+ {
+  "text": "Digitaler Abdruck UK links für Kronenversorgung 36, Intraoralscanner verwendet, Biss digital registriert",
+  "expected": [
+   "0065"
+  ],
+  "rag": [
+   "0065",
+   "2410"
+  ],
+  "finetune": [
+   "0065"
+  ],
+  "difficulty": "medium"
+ }
+]
