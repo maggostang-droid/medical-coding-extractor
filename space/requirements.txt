@@ -1,7 +1,17 @@
 # Bewusst winzig: diese Demo zeigt vorberechnete Ausgaben und laedt kein
 # Modell. Torch, Transformers, PEFT, sentence-transformers und rank-bm25
 # werden hier nirgends importiert (siehe Modul-Docstring in app.py) — sie
-# einzutragen wuerde den Build auf Community Cloud nur verlangsamen und
-# fragiler machen. pydantic braucht goz_extract.schema.
-streamlit==1.38.0
-pydantic==2.8.2
+# einzutragen wuerde den Build nur verlangsamen und fragiler machen.
+# pydantic braucht goz_extract.schema.
+#
+# Untergrenzen statt exakter Pins, mit Absicht: Streamlit Community Cloud
+# baut gegen ein sehr aktuelles Python (Stand 2026-07-31: 3.14). Aeltere
+# Versionen haben dafuer keine vorgebauten Wheels und fallen auf einen
+# Quellbau zurueck, der zuverlaessig scheitert — pydantic-core an PyO3
+# ("interpreter version 3.14 is newer than PyO3's maximum 3.13"), pillow an
+# fehlenden zlib-Headern. Die Grenzen unten sind die ersten Versionen mit
+# cp314-Wheels; die Obergrenzen halten den naechsten Major-Bruch fern.
+#   streamlit >=1.60 -> erlaubt pillow<13 (davor <11, ohne cp314-Wheel)
+#   pydantic  >=2.13 -> zieht pydantic-core >=2.46 (erstes cp314-Wheel)
+streamlit>=1.60,<2
+pydantic>=2.13,<3
