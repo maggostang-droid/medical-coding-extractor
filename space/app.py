@@ -33,6 +33,10 @@ REPO = ROOT.parent
 # where=["src"]) und ist sonst nicht importierbar.
 sys.path.insert(0, str(REPO / "src"))
 
+# Bewusst hier statt oben: braucht den sys.path-Eintrag. graph_merge ist
+# framework-frei (nur Stdlib) und laeuft daher auch auf der freien Stufe.
+from goz_extract.graph_merge import graph_predict  # noqa: E402
+
 CODES_PATH = REPO / "data" / "goz_codes.json"
 EXAMPLES_PATH = ROOT / "data" / "demo_examples.json"
 
@@ -142,13 +146,46 @@ st.text_area("Behandlungsnotiz", beispiel["text"], height=100, disabled=True)
 
 st.divider()
 st.markdown("**Erwartete Codes:** " + ", ".join(f"`{c}`" for c in beispiel["expected"]))
-col_rag, col_ft = st.columns(2)
+col_rag, col_ft, col_graph = st.columns(3)
 with col_rag:
     st.subheader("🔎 RAG-Baseline")
     code_list("Vorhergesagt", beispiel["rag"], code_by_nr, expected=beispiel["expected"])
 with col_ft:
     st.subheader("🧠 LoRA-Finetune")
     code_list("Vorhergesagt", beispiel["finetune"], code_by_nr, expected=beispiel["expected"])
+with col_graph:
+    st.subheader("🕸️ Graph")
+    graph_result = graph_predict(beispiel["rag"], beispiel["finetune"], set(code_by_nr))
+    code_list(
+        "Übernommen", graph_result.predicted_codes, code_by_nr, expected=beispiel["expected"]
+    )
+    if graph_result.uncertain:
+        st.warning(
+            "⚠️ `needs_review` — nur von der RAG-Baseline geliefert, "
+            "nicht übernommen: " + ", ".join(f"`{c}`" for c in graph_result.uncertain)
+        )
+
+with st.expander("🕸️ Was macht die Graph-Spalte — und warum ist sie ehrlich gescheitert?"):
+    st.markdown(
+        """
+Beide Pfade laufen parallel, ein **Fan-in** führt die Kandidaten zusammen,
+ein **deterministischer Verifier** (reiner Code, kein LLM) prüft gegen den
+GOZ-Katalog. Merge-Regel: Codes, die beide liefern, werden übernommen; Codes
+nur vom Finetune ebenfalls; Codes nur von der RAG-Baseline gelten als
+unsicher und lösen `needs_review` aus.
+
+**Das Ergebnis über alle 81 Notizen: exakt die Zahlen des Finetunes — plus
+eine Prüfquote von 95 %.** Die Regel ist algebraisch identisch zur
+Finetune-Vorhersage; was die RAG-Baseline exklusiv beisteuert, ist zu drei
+Vierteln falsch (Precision 0,24). Diese Spalte zeigt pro Notiz, *warum*: Man
+sieht, welche Codes als unsicher aussortiert wurden.
+
+Der Befund samt Obergrenzen-Rechnung steht im
+[README](https://github.com/maggostang-droid/medical-coding-extractor#dritter-weg-ein-graph--und-warum-er-hier-nicht-hält)
+— inklusive des Hebels, der tatsächlich Luft hätte (ein Checker-Knoten, der
+aus den gepoolten Kandidaten auswählt: Obergrenze 0,80 statt 0,38).
+        """
+    )
 
 with st.expander("Warum kann ich hier keinen eigenen Text eingeben?"):
     st.markdown(

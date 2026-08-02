@@ -28,9 +28,11 @@ GitHub*:
 | Branch | `master` |
 | Main file path | `space/app.py` |
 
-**Branch beachten:** Der Default-Branch des Repos ist `main` (ein alter
-Einzelcommit). Die echte Historie liegt auf `master` — falsch gewählt, und
-Community Cloud findet `space/app.py` nicht.
+**Branch beachten:** Die App ist von `master` deployt. Seit 02.08.2026
+zeigen `main` (Default) und `master` auf dieselbe echte Historie — der
+frühere main-Einzelcommit liegt als Tag `archive/erstpublikation-2026-07-29`.
+`master` nicht löschen, solange die App davon deployt; Pushes gehen
+deshalb immer auf **beide** Branches.
 
 Der Build dauert ein bis zwei Minuten; `requirements.txt` enthält nur
 `streamlit` und `pydantic`.
