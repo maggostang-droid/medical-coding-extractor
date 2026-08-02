@@ -57,6 +57,14 @@ def page_header(title: str, claim: str, project_id: str, cluster: str) -> None:
     # nach Streamlit-Version unsichtbar (Platz wird reserviert, Text nicht
     # gezeichnet), was in Screenshots einen kopflosen Kopfbereich ergibt.
     st.title(title)
+    # Streamlit gibt der Ueberschrift eine knappe Zeilenhoehe. Mit dem
+    # Monospace-Theme ragen die Grossbuchstaben darueber hinaus und werden oben
+    # abgeschnitten. Etwas mehr Luft und sichtbarer Ueberlauf beheben das.
+    st.markdown(
+        "<style>[data-testid='stAppViewContainer'] h1"
+        "{line-height:1.35!important;overflow:visible!important;padding-top:.08em!important}</style>",
+        unsafe_allow_html=True,
+    )
     st.markdown(
         f"""
         <div style="border-left:3px solid {accent};padding:.15rem 0 .35rem 1rem;margin:-.5rem 0 1.1rem">
