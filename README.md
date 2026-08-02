@@ -7,9 +7,11 @@ GOZ-Ziffern aus zahnärztlichen Behandlungsnotizen — verglichen gegen eine
 RAG-Baseline auf demselben, unveränderten Basismodell. Ziel: eine konkrete,
 messbare Antwort auf "schlägt Finetuning RAG?".
 
-Dazu kam ein dritter Ansatz: beide Pfade als Graph verdrahtet, mit
-deterministischem Verifier. Er hat **nicht** funktioniert — die Messung und
-die Obergrenzen-Rechnung, die zeigt warum, stehen weiter unten.
+Dazu kam ein dritter Ansatz: beide Pfade als Graph verdrahtet. Die erste
+Fassung mit Aggregator hat **nicht** funktioniert; die zweite mit einem
+Checker-Node schöpft 86 % des verfügbaren Spielraums aus. Warum das eine
+scheitert und das andere trägt — samt Obergrenzen-Rechnung — steht weiter
+unten.
 
 <!-- TODO(Marco): Screenshot der lokalen Streamlit-Demo hier einfügen:
      ![Medical Coding Extractor — Streamlit-Demo](docs/demo.png) -->
@@ -145,10 +147,54 @@ Der Code bleibt im Repo, weil die Aussage etwas wert ist: Graph
 Engineering ist eine Verdrahtungsentscheidung, keine Verbesserung an
 sich. Was die Kanten transportieren, muss vorher gemessen werden.
 
+### Der Checker-Node: die Auswahlaufgabe ist lösbar
+
+Aus der Diagnose folgt ein anderer Knoten. Statt Mengen zu verrechnen,
+behandelt der **Checker** die beiden Extraktoren als Retriever: Ihre
+Vorschläge werden gepoolt (Ø 3,68 Kandidaten pro Notiz), und ein Modell
+wählt daraus die zutreffende Teilmenge. Strukturell dieselbe Aufgabe wie
+die RAG-Baseline — nur ist der Kandidatenpool ein anderer.
+
+Weil die faire Zeile dasselbe Basismodell braucht wie alle anderen
+(Llama-3.2-3B, Colab-GPU), steht sie noch aus. Vorab beantwortet eine
+**Sonde mit einem stärkeren API-Modell** die Frage, ob die Auswahlaufgabe
+überhaupt lösbar ist:
+
+| Variante | Precision | Recall | F1 | Exact Match | Prüfquote |
+|---|---|---|---|---|---|
+| LoRA-Finetune (Referenz) | 0.65 | 0.58 | 0.59 | 0.38 | — |
+| Graph, Aggregator | 0.65 | 0.58 | 0.59 | 0.38 | 95% |
+| Graph + Checker *(Sonde, anderes Modell)* | 0.88 | 0.86 | 0.86 | **0.74** | 1% |
+| Perfekte Auswahl *(Orakel, kein Modell)* | 0.94 | 0.88 | 0.90 | 0.80 | 6% |
+
+> Die Sondenzeile ist **kein fairer Vergleich** und gehört nicht in die
+> Ergebnistabelle oben: Sie läuft auf einem anderen, deutlich stärkeren
+> Modell. Ihr Zweck ist allein, die Machbarkeit zu klären, bevor eine
+> GPU-Sitzung investiert wird.
+
+Aufschlussreich ist die Zerlegung. Von den 65 Notizen, deren erwartete
+Codes überhaupt im Pool stecken, trifft der Checker **60 — also 92 %**.
+Die übrigen 16 sind für ihn per Konstruktion unlösbar: Was kein Extraktor
+vorgeschlagen hat, kann er nicht auswählen.
+
+**Damit verschiebt sich das Problem.** Die Auswahl ist weitgehend gelöst;
+was bleibt, ist ein Recall-Problem *des Pools*. Der nächste sinnvolle
+Hebel ist also nicht ein besserer Selektor, sondern ein Kandidatenpool,
+der öfter vollständig ist — mehr Extraktoren, breiteres Retrieval, oder
+ein Finetune mit höherem Recall. Nebenbei fällt die Prüfquote von 95 %
+auf 1 %: Der Checker entscheidet, statt an einen Menschen abzugeben.
+
+Bemerkenswert auch die Kalibrierung: aus 3,68 Kandidaten wählt er im
+Schnitt 1,62 Codes, erwartet werden 1,68.
+
 ```bash
 python scripts/analyze_merge_headroom.py --results-dir results/   # Diagnose
-python scripts/run_graph_eval.py --results-dir results/           # Graph-Zeile
+python scripts/run_graph_eval.py --results-dir results/           # Aggregator
+python scripts/run_checker_eval.py --results-dir results/ --backend oracle   # Obergrenze
 ```
+
+Die faire Checker-Zeile entsteht im Colab-Notebook (Abschnitt 4b) und wird
+danach mit `--backend jsonl` ausgewertet.
 
 ## Was schiefging (und warum das dazugehört)
 
