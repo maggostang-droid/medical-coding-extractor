@@ -52,11 +52,15 @@ def page_header(title: str, claim: str, project_id: str, cluster: str) -> None:
     projects.js (z.B. 'sql-agent'), nur die löst der Deep-Link-Router auf.
     """
     accent = ACCENT.get(cluster, ACCENT["cloud"])
+    # Der Titel kommt bewusst als Streamlit-eigene Ueberschrift, nicht als
+    # HTML-Element im Markdown-Block: eigene Ueberschriften-Elemente bleiben je
+    # nach Streamlit-Version unsichtbar (Platz wird reserviert, Text nicht
+    # gezeichnet), was in Screenshots einen kopflosen Kopfbereich ergibt.
+    st.title(title)
     st.markdown(
         f"""
-        <div style="border-left:3px solid {accent};padding:.15rem 0 .15rem 1rem;margin-bottom:1.1rem">
-          <div style="font-size:1.9rem;font-weight:700;color:{TEXT};line-height:1.2">{title}</div>
-          <div style="font-size:1.02rem;color:{TEXT_DIM};margin-top:.45rem;line-height:1.5">{claim}</div>
+        <div style="border-left:3px solid {accent};padding:.15rem 0 .35rem 1rem;margin:-.5rem 0 1.1rem">
+          <div style="font-size:1.02rem;color:{TEXT_DIM};line-height:1.5">{claim}</div>
           <div style="font-family:monospace;font-size:.8rem;margin-top:.7rem;color:{TEXT_DIM};opacity:.75">
             <a href="{PORTFOLIO_URL}#{project_id}" target="_blank"
                style="color:{accent};text-decoration:none">▸ Teil von MARCO.OS</a>
