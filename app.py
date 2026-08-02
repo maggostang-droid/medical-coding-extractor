@@ -4,6 +4,20 @@ import json
 from pathlib import Path
 
 import streamlit as st
+
+import sys
+
+# Das Verzeichnis dieser Datei auf den Importpfad legen, damit portfolio_ui
+# sowohl beim normalen Start (Streamlit legt es selbst dorthin) als auch im
+# Test-Harness (AppTest.from_file laeuft vom Repo-Wurzelverzeichnis) gefunden wird.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from portfolio_ui import (
+    page_header,
+    page_setup,
+    portfolio_footer,
+    under_the_hood,
+)
 import torch
 from dotenv import load_dotenv
 from peft import PeftModel
@@ -16,7 +30,7 @@ from goz_extract.schema import GozCode
 
 load_dotenv()  # HF_TOKEN fürs gated meta-llama-Modell, siehe .env
 
-st.set_page_config(page_title="GOZ-Extraktion: Finetune vs. RAG", page_icon="🦷", layout="wide")
+page_setup("Medical Coding Extractor", layout="wide")
 
 MODEL_ID = "meta-llama/Llama-3.2-3B-Instruct"
 
@@ -70,7 +84,7 @@ def code_card(nr: str, code_by_nr: dict[str, GozCode]) -> None:
     """Zeigt einen GOZ-Code als lesbare Karte statt als rohen JSON-Eintrag."""
     code = code_by_nr[nr]
     with st.container(border=True):
-        st.markdown(f"**GOZ {nr}** — {code.bezeichnung}")
+        st.markdown(f"**GOZ {nr}**: {code.bezeichnung}")
         if code.erweiterte_beschreibung:
             st.caption(code.erweiterte_beschreibung)
 
@@ -87,32 +101,32 @@ def code_list(title: str, nrs: list[str], code_by_nr: dict[str, GozCode]) -> Non
 (code_by_nr, valid_codes, bm25_index, embedding_index,
  base_tokenizer, finetuned_model) = load_resources()
 
-st.title("🦷 GOZ-Code-Extraktion: LoRA-Finetuning vs. RAG")
-
-st.markdown(
-    "Diese Demo vergleicht zwei Ansätze, um aus einer zahnärztlichen "
-    "Behandlungsnotiz automatisch die passenden **GOZ-Abrechnungscodes** "
-    "(amtliche Gebührenordnung für Zahnärzte) zu extrahieren — einmal mit "
-    "**Retrieval-Augmented Generation (RAG)**, einmal mit einem eigens "
-    "**feingetunten Modell (LoRA)**. Beide laufen auf demselben "
-    "Basismodell (Llama-3.2-3B-Instruct), damit der Vergleich fair ist."
+page_header(
+    title="Medical Coding Extractor",
+    claim=(
+        "Extrahiert GOZ-Abrechnungscodes aus zahnärztlichen Behandlungsnotizen: "
+        "LoRA-Finetuning gegen RAG-Baseline auf identischem Basismodell, damit der "
+        "Vergleich fair ist."
+    ),
+    project_id="goz-finetune-vs-rag",
+    cluster="agentic-ai",
 )
 
-with st.expander("ℹ️ Wie funktionieren die beiden Ansätze?"):
+with st.expander("Wie funktionieren die beiden Ansätze?"):
     st.markdown(
         """
-**RAG-Baseline** — *Nachschlagen statt Auswendiglernen*
+**RAG-Baseline**, *Nachschlagen statt Auswendiglernen*
 1. Aus den 10 möglichen GOZ-Codes werden per Textsuche (BM25 + Embeddings)
    die 5 am besten passenden **Kandidaten** herausgesucht.
 2. Diese Kandidatenliste wird dem Modell zusammen mit der Notiz im Prompt
-   gezeigt — es wählt daraus aus, statt die Codes selbst zu kennen.
+   gezeigt, es wählt daraus aus, statt die Codes selbst zu kennen.
 3. Vorteil: das Basismodell braucht kein Zahnmedizin-Fachwissen. Nachteil:
    die Vorhersage ist nur so gut wie die Suche, die die Kandidaten liefert.
 
-**LoRA-Finetune** — *Auswendiggelerntes Fachwissen*
+**LoRA-Finetune**, *Auswendiggelerntes Fachwissen*
 1. Das Basismodell wurde mit einem kleinen zusätzlichen Gewichtssatz
    (LoRA-Adapter) auf 325 Beispielnotizen trainiert.
-2. Zur Laufzeit gibt es **kein Nachschlagen** — das Modell entscheidet
+2. Zur Laufzeit gibt es **kein Nachschlagen**, das Modell entscheidet
    direkt aus dem, was es beim Training gelernt hat.
 3. Vorteil: kann eigene Formulierungen/Fachjargon verinnerlichen. Nachteil:
    nur so gut wie die Trainingsdaten, die es gesehen hat.
@@ -126,13 +140,13 @@ trifft öfter die *exakte* Code-Kombination).
 
 st.subheader("Behandlungsnotiz eingeben")
 beispiel = st.selectbox(
-    "Beispielnotiz laden (optional) — oder unten eigenen Text eingeben",
-    ["— eigenen Text eingeben —"] + list(BEISPIEL_NOTIZEN.keys()),
+    "Beispielnotiz laden, oder unten eigenen Text eingeben",
+    ["eigenen Text eingeben"] + list(BEISPIEL_NOTIZEN.keys()),
 )
 vorbefuellt = BEISPIEL_NOTIZEN.get(beispiel, "Zahn 36: Infiltrationsanästhesie, Karies excaviert, Kompositfüllung zweiflächig gelegt.")
 note_text = st.text_area("Notiztext", vorbefuellt, height=100)
 
-extrahieren = st.button("🔍 GOZ-Codes extrahieren", type="primary")
+extrahieren = st.button("GOZ-Codes extrahieren", type="primary")
 
 if extrahieren:
     with st.spinner("Suche Retrieval-Kandidaten und generiere Vorhersagen …"):
@@ -160,7 +174,40 @@ if extrahieren:
 
     with col_finetune:
         st.subheader("🧠 LoRA-Finetune")
-        st.caption("Kein Retrieval zur Laufzeit — Wissen steckt in den LoRA-Gewichten.")
+        st.caption("Kein Retrieval zur Laufzeit, das Wissen steckt in den LoRA-Gewichten.")
         code_list("Vorhergesagte Codes", finetune_codes, code_by_nr)
 else:
-    st.caption("👆 Notiz eingeben oder Beispiel wählen, dann auf den Button klicken.")
+    st.caption("Notiz eingeben oder Beispiel wählen, dann auf den Button klicken.")
+
+
+with under_the_hood():
+    st.markdown(
+        "Beide Pfade laufen auf demselben unveränderten **Llama-3.2-3B-Instruct**. "
+        "`disable_adapter()` schaltet den LoRA-Adapter kurzzeitig ab, damit die "
+        "RAG-Baseline auf den Basis-Gewichten läuft, ohne eine zweite Modellkopie."
+    )
+    st.code(
+        "Ergebnisse ueber 81 Testnotizen (results/results.md)\n\n"
+        "Ansatz            Precision  Recall    F1   Exact Match\n"
+        "RAG-Baseline           0.40    0.70  0.48          0.07\n"
+        "LoRA-Finetune          0.65    0.58  0.59          0.38\n"
+        "Graph (Aggregator)     0.65    0.58  0.59          0.38",
+        language="text",
+    )
+    st.markdown(
+        "Der dritte Ansatz, ein Graph aus beiden Pfaden, bringt **exakt nichts**: "
+        "Die Merge-Regel ist algebraisch identisch mit dem Finetune allein. Die "
+        "Headroom-Analyse dazu steht im README, sie zeigt, dass der Hebel im "
+        "Auswählen liegt und nicht im Verrechnen."
+    )
+
+portfolio_footer(
+    repo="medical-coding-extractor",
+    project_id="goz-finetune-vs-rag",
+    caveats=[
+        "Label-Space auf 10 Alltags-Codes begrenzt, nicht die vollen 221 GOZ-Codes",
+        "Trainingsdaten sind synthetisch, keine echten Patienten- oder Praxisdaten",
+        "vereinfachte Retrieval-Pipeline ohne die Schritte eines Produktivsystems",
+        "Free-Tier-Hosting, der erste Aufruf kann einen Kaltstart haben",
+    ],
+)

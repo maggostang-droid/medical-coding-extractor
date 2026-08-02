@@ -1,0 +1,9 @@
+# Theme im MARCO.OS-Look. Farbtoken identisch zu marco-os/assets/css/style.css,
+# primaryColor ist der Cluster-Akzent (agentic-ai) aus window-manager.js.
+[theme]
+base = "dark"
+primaryColor = "#fbbf24"
+backgroundColor = "#0a0716"
+secondaryBackgroundColor = "#140f24"
+textColor = "#e7e4f5"
+font = "sans serif"
