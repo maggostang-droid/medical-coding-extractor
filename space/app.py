@@ -99,7 +99,12 @@ st.markdown(
   }
   .goz-map-row.summe .von { font-style: normal; opacity: 1; font-weight: 600; }
   .goz-map-row.summe .preis { font-weight: 700; opacity: 1; font-size: 1.05rem; }
-  .goz-chips { display: flex; flex-wrap: wrap; gap: .32rem; align-items: center; }
+  .goz-raster { display: grid; gap: .3rem; align-items: center; }
+  .goz-zelle { display: flex; justify-content: flex-start; min-height: 1.6rem; }
+  .goz-zelle.trenn {
+    border-left: 1px solid rgba(128,128,128,.35);
+    margin-left: -.15rem; padding-left: .45rem;
+  }
   .goz-chip {
     font-size: .84rem; font-weight: 650; font-variant-numeric: tabular-nums;
     padding: .2rem .5rem; border-radius: 6px;
@@ -142,17 +147,35 @@ examples = load_examples()
 
 
 # --- Bausteine --------------------------------------------------------------
-def chips_html(predicted, expected):
-    """Ziffern als Chips: getroffen, zu viel, fehlend — Symbol statt nur Farbe."""
-    parts = []
-    for nr in sorted(predicted):
-        if nr in expected:
-            parts.append(f'<span class="goz-chip hit">✓ {nr}</span>')
+def spalten_fuer(expected, *vorhersagen):
+    """Feste Spaltenordnung für alle Zeilen: erst die erwarteten Ziffern, dann
+    die überzähligen. So steht dieselbe Ziffer in jeder Zeile an derselben
+    Stelle — nur dann ist der Vergleich auf einen Blick lesbar. Die Zweiteilung
+    macht zusätzlich sichtbar, was links fehlt und was rechts zu viel ist."""
+    alle = set().union(*(set(v) for v in vorhersagen)) if vorhersagen else set()
+    return sorted(expected), sorted(alle - set(expected))
+
+
+def raster_html(predicted, expected, soll_spalten, extra_spalten):
+    """Eine Zeile im festen Raster — leere Zellen halten die Ausrichtung."""
+    predicted, expected = set(predicted), set(expected)
+    zellen = []
+    for i, nr in enumerate(soll_spalten + extra_spalten):
+        trenn = " trenn" if extra_spalten and i == len(soll_spalten) else ""
+        if nr in predicted and nr in expected:
+            inhalt = f'<span class="goz-chip hit">✓ {nr}</span>'
+        elif nr in predicted:
+            inhalt = f'<span class="goz-chip extra">✕ {nr}</span>'
+        elif nr in expected:
+            inhalt = f'<span class="goz-chip fehlt">! {nr}</span>'
         else:
-            parts.append(f'<span class="goz-chip extra">✕ {nr}</span>')
-    for nr in sorted(set(expected) - set(predicted)):
-        parts.append(f'<span class="goz-chip fehlt">! {nr} fehlt</span>')
-    return f'<div class="goz-chips">{"".join(parts) or "<em>nichts vorhergesagt</em>"}</div>'
+            inhalt = ""
+        zellen.append(f'<span class="goz-zelle{trenn}">{inhalt}</span>')
+    spalten = len(soll_spalten) + len(extra_spalten)
+    return (
+        f'<div class="goz-raster" style="grid-template-columns: repeat({spalten}, 4.9rem)">'
+        f'{"".join(zellen)}</div>'
+    )
 
 
 def urteil_html(predicted, expected):
@@ -170,10 +193,10 @@ def urteil_html(predicted, expected):
     return f'<span class="goz-urteil {klasse}">{zeichen} {", ".join(teile)}</span>'
 
 
-def ergebniszeile(name, unterzeile, predicted, expected):
+def ergebniszeile(name, unterzeile, predicted, expected, soll_spalten, extra_spalten):
     c1, c2, c3 = st.columns([1.15, 3.3, 1.05], vertical_alignment="center")
     c1.markdown(f'<div class="goz-name">{name}<small>{unterzeile}</small></div>', unsafe_allow_html=True)
-    c2.markdown(chips_html(predicted, expected), unsafe_allow_html=True)
+    c2.markdown(raster_html(predicted, expected, soll_spalten, extra_spalten), unsafe_allow_html=True)
     c3.markdown(urteil_html(predicted, expected), unsafe_allow_html=True)
 
 
@@ -217,7 +240,25 @@ st.caption(
 
 # --- Ebene 2: Der Vergleich -------------------------------------------------
 st.divider()
-st.subheader("Drei Wege, dasselbe zu tun")
+st.subheader("Drei Wege, das Fachwissen ins Modell zu bekommen")
+st.markdown(
+    "Ein Sprachmodell kennt die GOZ nicht. Dieses Wissen kann an drei Stellen sitzen — "
+    "und jede Stelle hat einen anderen Preis:"
+)
+st.markdown(
+    "- **Außerhalb des Modells** *(RAG-Baseline)* — die Codeliste wird zur Laufzeit "
+    "durchsucht. Neue oder geänderte Ziffern kosten kein Training, dafür ist das "
+    "Ergebnis nur so gut wie die Suche davor.\n"
+    "- **Im Modell** *(LoRA-Finetune)* — das Wissen steckt nach dem Training in den "
+    "Gewichten. Versteht Fachjargon ohne Nachschlagen, muss für jede Änderung aber neu "
+    "trainiert werden.\n"
+    "- **In der Verdrahtung** *(Graph)* — beide Pfade laufen und werden zusammengeführt. "
+    "Kostet kein zusätzliches Training, dafür mehr bewegliche Teile und doppelte Inferenz."
+)
+st.caption(
+    "Alle drei laufen auf demselben Basismodell (Llama-3.2-3B-Instruct) — nur so misst "
+    "der Vergleich die Methode und nicht die Modellgröße."
+)
 
 hero_idx = next((i for i, e in enumerate(examples) if e["text"] == HERO_TEXT), 0)
 idx = st.selectbox(
@@ -234,10 +275,19 @@ if idx != hero_idx:
 expected = beispiel["expected"]
 graph = graph_predict(beispiel["rag"], beispiel["finetune"], set(code_by_nr))
 
-ergebniszeile("Soll", "so wäre es richtig", expected, expected)
-ergebniszeile("RAG-Baseline", "schlägt nach", beispiel["rag"], expected)
-ergebniszeile("LoRA-Finetune", "hat gelernt", beispiel["finetune"], expected)
-ergebniszeile("Graph", "verrechnet die Vorschläge", graph.predicted_codes, expected)
+soll_spalten, extra_spalten = spalten_fuer(
+    expected, beispiel["rag"], beispiel["finetune"], graph.predicted_codes
+)
+
+ergebniszeile("Soll", "so wäre es richtig", expected, expected, soll_spalten, extra_spalten)
+ergebniszeile("RAG-Baseline", "sucht nach", beispiel["rag"], expected, soll_spalten, extra_spalten)
+ergebniszeile("LoRA-Finetune", "hat gelernt", beispiel["finetune"], expected, soll_spalten, extra_spalten)
+ergebniszeile("Graph", "führt zusammen", graph.predicted_codes, expected, soll_spalten, extra_spalten)
+st.caption(
+    "Jede Spalte ist eine GOZ-Ziffer, in allen Zeilen an derselben Stelle. "
+    "Links vom Strich stehen die richtigen Ziffern, rechts die überzähligen — "
+    "✓ getroffen · ✕ zu viel · ! nicht gefunden."
+)
 if graph.uncertain:
     st.caption(
         "Der Graph übernimmt nur, was **beide** Pfade liefern oder was allein vom "
@@ -247,10 +297,8 @@ if graph.uncertain:
         "und deshalb ist diese Fassung gescheitert (siehe unten)."
     )
 st.caption(
-    "Alle drei Ansätze laufen auf demselben Basismodell — nur so misst der Vergleich "
-    "die Verdrahtung und nicht die Modellgröße. Ein Beispiel ist außerdem ein Beispiel: "
-    "über alle 81 Testnotizen trifft das Finetune 38 % exakt, die RAG-Baseline 7 %, "
-    "der Graph ebenfalls 38 %."
+    "Ein Beispiel ist ein Beispiel: Über alle 81 Testnotizen trifft das Finetune 38 % "
+    "exakt, die RAG-Baseline 7 %, der Graph ebenfalls 38 %."
 )
 
 # --- Ebene 3: alles Weitere, aufklappbar ------------------------------------
