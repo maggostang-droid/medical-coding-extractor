@@ -1,0 +1,77 @@
+{
+  "title": "app://goz-finetune-vs-rag · architecture",
+  "alt": "Dieselbe Behandlungsnotiz laeuft durch RAG-Baseline und LoRA-Finetune auf identischem Basismodell; beide liefern GOZ-Codes, die auf 81 Testnotizen verglichen werden",
+  "accent": "#fbbf24",
+  "width": 900,
+  "height": 272,
+  "nodes": [
+    {
+      "id": "note",
+      "x": 30,
+      "y": 112,
+      "w": 170,
+      "h": 58,
+      "label": "Behandlungs-",
+      "sub": "notiz"
+    },
+    {
+      "id": "rag",
+      "x": 250,
+      "y": 40,
+      "w": 230,
+      "h": 58,
+      "label": "RAG-Baseline",
+      "sub": "BM25 + e5, Kandidaten im Prompt"
+    },
+    {
+      "id": "lora",
+      "x": 250,
+      "y": 184,
+      "w": 230,
+      "h": 58,
+      "label": "LoRA-Finetune",
+      "sub": "Wissen in den Gewichten",
+      "emphasis": true
+    },
+    {
+      "id": "codes",
+      "x": 530,
+      "y": 112,
+      "w": 160,
+      "h": 58,
+      "label": "GOZ-Codes",
+      "sub": "Multi-Label"
+    },
+    {
+      "id": "eval",
+      "x": 720,
+      "y": 112,
+      "w": 150,
+      "h": 58,
+      "label": "Eval",
+      "sub": "81 Testnotizen"
+    }
+  ],
+  "edges": [
+    {
+      "from": "note",
+      "to": "rag"
+    },
+    {
+      "from": "note",
+      "to": "lora"
+    },
+    {
+      "from": "rag",
+      "to": "codes"
+    },
+    {
+      "from": "lora",
+      "to": "codes"
+    },
+    {
+      "from": "codes",
+      "to": "eval"
+    }
+  ]
+}

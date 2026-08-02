@@ -1,119 +1,77 @@
 # Medical Coding Extractor
 
-GOZ-Code-Extraktion: LoRA-Finetuning vs. RAG-Baseline vs. Graph.
+**Extrahiert GOZ-Ziffern aus zahnärztlichen Behandlungsnotizen: LoRA-Finetuning gegen
+RAG-Baseline auf identischem Basismodell, plus die gemessene Antwort darauf, warum ein
+Graph zwischen beiden nichts bringt.**
 
-Portfolio-Projekt: Ein LoRA-feingetuntes Llama-3.2-3B-Instruct extrahiert
-GOZ-Ziffern aus zahnärztlichen Behandlungsnotizen — verglichen gegen eine
-RAG-Baseline auf demselben, unveränderten Basismodell. Ziel: eine konkrete,
-messbare Antwort auf "schlägt Finetuning RAG?".
+![Llama 3.2](https://img.shields.io/badge/Llama--3.2--3B-LoRA_Finetune-fbbf24?style=flat-square&labelColor=0a0716)
+![Adapter](https://img.shields.io/badge/Adapter-Hugging_Face-fbbf24?style=flat-square&labelColor=0a0716)
+![Eval](https://img.shields.io/badge/Eval-81_Testnotizen-fbbf24?style=flat-square&labelColor=0a0716)
+[![Live-Demo](https://img.shields.io/badge/▶_Live--Demo-Streamlit-0a0716?style=flat-square&labelColor=fbbf24)](https://medical-coding-extractor.streamlit.app/)
 
-Dazu kam ein dritter Ansatz: beide Pfade als Graph verdrahtet. Die erste
-Fassung mit Aggregator hat **nicht** funktioniert; die zweite mit einem
-Checker-Node schöpft 86 % des verfügbaren Spielraums aus. Warum das eine
-scheitert und das andere trägt — samt Obergrenzen-Rechnung — steht weiter
-unten.
+> **▶ [Demo ausprobieren](https://medical-coding-extractor.streamlit.app/)**
+> Zeigt für alle 81 Testnotizen die echten, vorberechneten Ausgaben beider Ansätze neben
+> den erwarteten Codes. Vergleiche eine Notiz, bei der die Ansätze auseinanderlaufen.
+> *Kein Modell im Speicher; nach längerer Inaktivität zahlt der erste Aufruf einen kurzen
+> Kaltstart.*
 
-<!-- TODO(Marco): Screenshot der lokalen Streamlit-Demo hier einfügen:
-     ![Medical Coding Extractor — Streamlit-Demo](docs/demo.png) -->
+<!-- TODO(Marco): Screenshot einfuegen, dann diese Zeile durch das Bild ersetzen:
+     ![Medical Coding Extractor: Vergleich der Ausgaben beider Ansätze je Testnotiz](docs/demo.png) -->
 
-**▶ [Live-Demo ausprobieren](https://medical-coding-extractor.streamlit.app/)** —
-zeigt für alle 81 Testnotizen die echten, vorberechneten Ausgaben beider
-Ansätze neben den erwarteten Codes (kein Modell im Speicher; nach längerer
-Inaktivität zahlt der erste Aufruf einen kurzen Kaltstart).
+<details>
+<summary><b>🇬🇧 English summary</b></summary>
 
-Training und Inferenz laufen auf Colab (GPU); eine lokale Streamlit-App
-mit echter Live-Inferenz gibt es zusätzlich — siehe Setup unten. Der
-trainierte LoRA-Adapter liegt öffentlich auf
+A LoRA-finetuned Llama-3.2-3B-Instruct extracts German dental billing codes (GOZ) from
+treatment notes, benchmarked against a RAG baseline on the same unmodified base model. The
+finetune wins on precision and exact match (0.38 vs 0.07). A third approach wired both
+paths into a graph with an aggregator, and it changed nothing: the merge rule turned out to
+be algebraically identical to the finetune alone. A headroom analysis shows why, and where
+the actual leverage is: selecting from the pooled candidates rather than merging sets. Full
+write-up in German below.
+</details>
+
+---
+
+## In 30 Sekunden
+
+Aus einer Behandlungsnotiz, die mehrere Schritte einer Sitzung beschreiben kann, werden
+alle zutreffenden GOZ-Ziffern extrahiert. Das ist eine Multi-Label-Aufgabe über 10
+kuratierte Kern-Codes der amtlichen Gebührenordnung.
+
+Die Frage dahinter ist grundsätzlicher: Schlägt Finetuning RAG? Beide Wege bringen
+Domänenwissen ins Modell, nur an unterschiedlicher Stelle. Die RAG-Baseline liefert per
+BM25 und Embeddings Kandidaten-Codes in den Prompt, das LoRA-Finetune trägt das Wissen in
+den Gewichten und braucht zur Inferenzzeit kein Retrieval. Beide laufen auf demselben
+unveränderten Llama-3.2-3B-Instruct, damit der Vergleich fair ist. Der trainierte Adapter
+liegt öffentlich auf
 [Hugging Face](https://huggingface.co/VoidFloat/goz-extract-llama32-3b).
 
-## Aufgabe
+## Die zentrale Entscheidung: der Graph, der nichts gebracht hat
 
-Aus einer Behandlungsnotiz (kann mehrere Behandlungsschritte einer Sitzung
-beschreiben) werden alle zutreffenden GOZ-Ziffern extrahiert (Multi-Label),
-aus einem Label-Space von 10 Kern-Codes (häufigste Alltagsleistungen aus den
-Kategorien "Allgemeine zahnärztliche Leistungen" + "Konservierende
-Leistungen" der amtlichen Gebührenordnung, reduziert aus einer ursprünglich
-55-Code-Liste - siehe Abschnitt "Limitierungen" unten).
+Die Fehlerprofile beider Ansätze sehen komplementär aus, RAG hat den Recall, das Finetune
+die Precision. Der naheliegende Schluss ist ein Graph: beide Pfade parallel laufen lassen,
+zusammenführen, einen deterministischen Verifier dahinter. Genau das wurde gebaut, mit
+einer aus den Fehlerprofilen abgeleiteten Merge-Regel: Codes von beiden Pfaden werden
+übernommen, Codes nur vom präziseren Finetune ebenfalls, Codes nur von der RAG-Baseline
+gelten als unsicher und werden markiert.
 
-## Zwei Wege, Domänenwissen einzubringen
+**Das Ergebnis war exakt null Verbesserung.** Und zwar nicht knapp, sondern algebraisch:
+„beide" plus „nur Finetune" *ist* die Menge der Finetune-Vorhersagen. Die Regel ist das
+Finetune, nur mit einem Prüf-Flag obendrauf, das dann auch noch bei 95 Prozent der Notizen
+anschlägt. Lockert man sie, entsteht die Vereinigung beider Pfade, und die ist schlechter
+als jeder Einzelpfad. Auch der Verifier lief leer: Über 81 Notizen hat er null Codes
+abgelehnt, weil der Prompt den Label-Space ohnehin auf 10 Ziffern begrenzt und keiner der
+Pfade je außerhalb davon halluziniert.
 
-- **RAG-Baseline:** BM25 + Embeddings (`multilingual-e5-base`) liefern
-  Kandidaten-Codes, dasselbe Basismodell wählt daraus per Prompt.
-- **LoRA-Finetune:** Domänenwissen steckt in den LoRA-Gewichten, kein
-  Retrieval zur Inferenzzeit.
+Der Code bleibt im Repo, weil die Aussage etwas wert ist: **Graph Engineering ist eine
+Verdrahtungsentscheidung, keine Verbesserung an sich.** Was die Kanten transportieren, muss
+vorher gemessen werden.
 
-```mermaid
-flowchart LR
-    N[Behandlungsnotiz] --> R["RAG-Baseline<br/>BM25 + e5-Embeddings<br/>→ Kandidaten-Codes im Prompt"]
-    N --> L["LoRA-Finetune<br/>Wissen in den Gewichten,<br/>kein Retrieval"]
-    B[Llama-3.2-3B-Instruct<br/>identisches Basismodell] --- R
-    B --- L
-    R --> C[GOZ-Codes<br/>Multi-Label]
-    L --> C
-    C --> E["Eval auf 81 Testnotizen:<br/>Precision / Recall / F1 / Exact Match"]
-```
+<details>
+<summary><b>▸ Deep Dive: die Diagnose, und wo der Hebel wirklich sitzt</b></summary>
 
-## Ergebnisse
-
-Llama-3.2-3B-Instruct, 10 kuratierte GOZ-Kern-Codes, 325 Trainings- /
-81 Testnotizen (synthetisch generiert, siehe `scripts/generate_data.py`):
-
-| Ansatz | Precision | Recall | F1 | Exact Match |
-|---|---|---|---|---|
-| RAG-Baseline | 0.40 | 0.70 | 0.48 | 0.07 |
-| LoRA-Finetune | 0.65 | 0.58 | 0.59 | 0.38 |
-
-Die RAG-Baseline (BM25 + Embedding-Retrieval, Kandidatenliste im Prompt)
-hat höheren Recall — sie bekommt mehr Kandidaten angeboten und trifft daher
-öfter irgendeinen richtigen Code. Das LoRA-Finetune ist präziser und trifft
-deutlich öfter die exakte Code-Kombination, weil das Wissen in den
-Modellgewichten steckt statt über Retrieval nachgereicht zu werden.
-
-## Dritter Weg: ein Graph — und warum er hier nicht hält
-
-Die Fehlerprofile oben sehen komplementär aus: RAG hat den Recall, das
-Finetune die Precision. Der naheliegende Schluss ist ein Graph — beide
-Pfade parallel laufen lassen, die Ergebnisse zusammenführen, einen
-deterministischen Verifier dahinter. Genau das habe ich gebaut:
-
-```mermaid
-flowchart LR
-    N[Behandlungsnotiz] --> R[RAG-Node]
-    N --> L[LoRA-Node]
-    R --> A[Aggregator<br/>Fan-in]
-    L --> A
-    A --> V["Verifier<br/>Katalog-Check, kein LLM"]
-    V --> O[Codes + needs_review]
-```
-
-Merge-Regel, aus den Fehlerprofilen abgeleitet: Codes, die beide Pfade
-liefern, werden übernommen; Codes nur vom präziseren Finetune ebenfalls;
-Codes nur von der RAG-Baseline gelten als unsicher und werden zur Prüfung
-markiert statt vorhergesagt.
-
-Das Ergebnis auf demselben Testset:
-
-| Ansatz | Precision | Recall | F1 | Exact Match | Prüfquote |
-|---|---|---|---|---|---|
-| RAG-Baseline | 0.40 | 0.70 | 0.48 | 0.07 | — |
-| LoRA-Finetune | 0.65 | 0.58 | 0.59 | 0.38 | — |
-| Graph (Merge + Verifier) | 0.65 | 0.58 | 0.59 | 0.38 | 95% |
-| Graph (Merge gelockert) | 0.43 | 0.88 | 0.55 | 0.05 | 0% |
-
-**Der Graph bringt exakt nichts.** Und zwar nicht knapp, sondern
-algebraisch: „beide" plus „nur Finetune" ist die Menge der
-Finetune-Vorhersagen. Die Regel *ist* das Finetune, nur mit einem
-Prüf-Flag on top — das dann auch noch bei 95% der Notizen anschlägt.
-Lockert man sie, entsteht die Vereinigung beider Pfade, und die ist
-schlechter als jeder Einzelpfad. Auch der Verifier läuft leer: er hat
-über 81 Notizen **null** Codes abgelehnt, weil der Prompt den Label-Space
-ohnehin auf 10 Ziffern begrenzt und keiner der beiden Pfade je außerhalb
-davon halluziniert.
-
-### Woran es liegt — und wo der Hebel wirklich sitzt
-
-Zwei Diagnosezahlen (`scripts/analyze_merge_headroom.py` rechnet sie aus
-den vorhandenen Exporten nach, ohne GPU):
+`scripts/analyze_merge_headroom.py` rechnet zwei Diagnosezahlen aus den vorhandenen
+Exporten nach, ohne GPU:
 
 | Herkunft eines Codes | Precision |
 |---|---|
@@ -121,132 +79,132 @@ den vorhandenen Exporten nach, ohne GPU):
 | nur vom LoRA-Finetune | 0.52 |
 | nur von der RAG-Baseline | **0.24** |
 
-Die RAG-Baseline ist kein komplementärer Partner, sie überschießt: 3,01
-vorhergesagte Codes pro Notiz bei 1,67 erwarteten. Ihr Recall-Vorsprung
-ist erkauft, nicht verdient — und was sie exklusiv beisteuert, ist zu drei
-Vierteln falsch.
+Die RAG-Baseline ist kein komplementärer Partner, sie überschießt: 3,01 vorhergesagte Codes
+pro Notiz bei 1,67 erwarteten. Ihr Recall-Vorsprung ist erkauft, nicht verdient, und was
+sie exklusiv beisteuert, ist zu drei Vierteln falsch.
 
-Entscheidend sind aber die Obergrenzen:
+Entscheidend sind die Obergrenzen. Wer pro Notiz perfekt zwischen den vier fertigen Mengen
+wählen könnte (RAG, Finetune, Vereinigung, Schnittmenge), käme auf Exact Match 0.42, also
+vier Punkte über dem Finetune. Mengen-Algebra ist damit ausgereizt, egal wie clever die
+Regel wird. Die erwarteten Codes stecken aber in 65 von 81 Notizen (0.80) vollständig in
+der Vereinigung beider Pfade.
 
-- Wer pro Notiz **perfekt zwischen den vier fertigen Mengen** wählen
-  könnte (RAG, Finetune, Vereinigung, Schnittmenge), käme auf Exact Match
-  **0.42** — vier Punkte über dem Finetune. Mengen-Algebra ist damit
-  ausgereizt, egal wie clever die Regel wird.
-- Die erwarteten Codes stecken aber in **65 von 81 Notizen (0.80)**
-  vollständig in der Vereinigung beider Pfade.
+Der Hebel liegt also im **Auswählen, nicht im Verrechnen**. Ein Aggregator, der Mengen
+verknüpft, kann diese Lücke prinzipiell nicht schließen. Ein Checker-Node, der die
+gepoolten Kandidaten gegen die Notiz prüft und die richtige Teilmenge zieht, hätte Luft von
+0.38 in Richtung 0.80.
+</details>
 
-Der Hebel liegt also im **Auswählen, nicht im Verrechnen**. Ein
-Aggregator, der Mengen verknüpft, kann diese Lücke prinzipiell nicht
-schließen; ein Checker-Node, der die gepoolten Kandidaten gegen die Notiz
-prüft und die richtige Teilmenge zieht, hätte Luft von 0.38 in Richtung
-0.80. Das ist der nächste Ausbauschritt — und ein anderes Graph-Muster
-(Maker/Checker statt Fan-out/Fan-in), das wieder Inferenz kostet statt
-nur Mengenlehre.
+<details>
+<summary><b>▸ Deep Dive: der Checker-Node, Machbarkeitssonde mit fremdem Modell</b></summary>
 
-Der Code bleibt im Repo, weil die Aussage etwas wert ist: Graph
-Engineering ist eine Verdrahtungsentscheidung, keine Verbesserung an
-sich. Was die Kanten transportieren, muss vorher gemessen werden.
+Statt Mengen zu verrechnen, behandelt der Checker beide Extraktoren als Retriever: Ihre
+Vorschläge werden gepoolt (durchschnittlich 3,68 Kandidaten pro Notiz), und ein Modell
+wählt daraus die zutreffende Teilmenge. Strukturell dieselbe Aufgabe wie die RAG-Baseline,
+nur mit einem anderen Kandidatenpool.
 
-### Der Checker-Node: die Auswahlaufgabe ist lösbar
-
-Aus der Diagnose folgt ein anderer Knoten. Statt Mengen zu verrechnen,
-behandelt der **Checker** die beiden Extraktoren als Retriever: Ihre
-Vorschläge werden gepoolt (Ø 3,68 Kandidaten pro Notiz), und ein Modell
-wählt daraus die zutreffende Teilmenge. Strukturell dieselbe Aufgabe wie
-die RAG-Baseline — nur ist der Kandidatenpool ein anderer.
-
-Weil die faire Zeile dasselbe Basismodell braucht wie alle anderen
-(Llama-3.2-3B, Colab-GPU), steht sie noch aus. Vorab beantwortet eine
-**Sonde mit einem stärkeren API-Modell** die Frage, ob die Auswahlaufgabe
-überhaupt lösbar ist:
+Die faire Zeile braucht dasselbe Basismodell wie alle anderen und damit eine Colab-GPU, sie
+steht noch aus. Vorab klärt eine Sonde mit einem stärkeren API-Modell, ob die
+Auswahlaufgabe überhaupt lösbar ist:
 
 | Variante | Precision | Recall | F1 | Exact Match | Prüfquote |
 |---|---|---|---|---|---|
-| LoRA-Finetune (Referenz) | 0.65 | 0.58 | 0.59 | 0.38 | — |
-| Graph, Aggregator | 0.65 | 0.58 | 0.59 | 0.38 | 95% |
-| Graph + Checker *(Sonde, anderes Modell)* | 0.88 | 0.86 | 0.86 | **0.74** | 1% |
-| Perfekte Auswahl *(Orakel, kein Modell)* | 0.94 | 0.88 | 0.90 | 0.80 | 6% |
+| LoRA-Finetune (Referenz) | 0.65 | 0.58 | 0.59 | 0.38 | |
+| Graph, Aggregator | 0.65 | 0.58 | 0.59 | 0.38 | 95 % |
+| Graph + Checker *(Sonde, anderes Modell)* | 0.88 | 0.86 | 0.86 | **0.74** | 1 % |
+| Perfekte Auswahl *(Orakel, kein Modell)* | 0.94 | 0.88 | 0.90 | 0.80 | 6 % |
 
-> Die Sondenzeile ist **kein fairer Vergleich** und gehört nicht in die
-> Ergebnistabelle oben: Sie läuft auf einem anderen, deutlich stärkeren
-> Modell. Ihr Zweck ist allein, die Machbarkeit zu klären, bevor eine
-> GPU-Sitzung investiert wird.
+> Die Sondenzeile ist **kein fairer Vergleich** und gehört nicht in die Ergebnistabelle
+> oben: Sie läuft auf einem anderen, deutlich stärkeren Modell. Ihr Zweck ist allein, die
+> Machbarkeit zu klären, bevor eine GPU-Sitzung investiert wird.
 
-Aufschlussreich ist die Zerlegung. Von den 65 Notizen, deren erwartete
-Codes überhaupt im Pool stecken, trifft der Checker **60 — also 92 %**.
-Die übrigen 16 sind für ihn per Konstruktion unlösbar: Was kein Extraktor
-vorgeschlagen hat, kann er nicht auswählen.
+Aufschlussreich ist die Zerlegung: Von den 65 Notizen, deren erwartete Codes überhaupt im
+Pool stecken, trifft der Checker 60, also 92 Prozent. Die übrigen 16 sind für ihn per
+Konstruktion unlösbar, denn was kein Extraktor vorgeschlagen hat, kann er nicht auswählen.
 
-**Damit verschiebt sich das Problem.** Die Auswahl ist weitgehend gelöst;
-was bleibt, ist ein Recall-Problem *des Pools*. Der nächste sinnvolle
-Hebel ist also nicht ein besserer Selektor, sondern ein Kandidatenpool,
-der öfter vollständig ist — mehr Extraktoren, breiteres Retrieval, oder
-ein Finetune mit höherem Recall. Nebenbei fällt die Prüfquote von 95 %
-auf 1 %: Der Checker entscheidet, statt an einen Menschen abzugeben.
-
-Bemerkenswert auch die Kalibrierung: aus 3,68 Kandidaten wählt er im
-Schnitt 1,62 Codes, erwartet werden 1,68.
+Damit verschiebt sich das Problem: Die Auswahl ist weitgehend gelöst, was bleibt, ist ein
+Recall-Problem *des Pools*. Der nächste sinnvolle Hebel ist also nicht ein besserer
+Selektor, sondern ein Kandidatenpool, der öfter vollständig ist. Nebenbei fällt die
+Prüfquote von 95 auf 1 Prozent, der Checker entscheidet statt an einen Menschen abzugeben.
+Bemerkenswert auch die Kalibrierung: aus 3,68 Kandidaten wählt er im Schnitt 1,62 Codes,
+erwartet werden 1,68.
 
 ```bash
-python scripts/analyze_merge_headroom.py --results-dir results/   # Diagnose
-python scripts/run_graph_eval.py --results-dir results/           # Aggregator
-python scripts/run_checker_eval.py --results-dir results/ --backend oracle   # Obergrenze
+python scripts/analyze_merge_headroom.py --results-dir results/                # Diagnose
+python scripts/run_graph_eval.py --results-dir results/                        # Aggregator
+python scripts/run_checker_eval.py --results-dir results/ --backend oracle     # Obergrenze
 ```
+</details>
 
-Die faire Checker-Zeile entsteht im Colab-Notebook (Abschnitt 4b) und wird
-danach mit `--backend jsonl` ausgewertet.
+<details>
+<summary><b>▸ Deep Dive: was beim Training schiefging</b></summary>
 
-## Was schiefging (und warum das dazugehört)
+Der Weg zu den Zahlen war kein Selbstläufer. Zwei frühe Trainingsläufe kollabierten in
+nahezu konstante Vorhersagen, das Modell gab für fast jede Notiz dieselbe Code-Kombination
+aus. Systematisches Debugging führte das zunächst auf klassisches Exposure Bias zurück
+(gesunde Trainings-Loss-Kurve, aber kollabierende freie Generierung), danach auf die
+eigentliche Ursache: schlicht zu wenige Gradientenschritte. Erst nach dieser Korrektur
+entstanden die Ergebnisse oben.
+</details>
 
-Der Weg zu diesen Zahlen war kein Selbstläufer: Zwei frühe Trainingsläufe
-kollabierten in nahezu konstante Vorhersagen — das Modell gab für fast
-jede Notiz dieselbe Code-Kombination aus. Systematisches Debugging führte
-das zunächst auf klassisches Exposure Bias zurück (gesunde
-Trainings-Loss-Kurve, aber kollabierende freie Generierung), danach auf
-die eigentliche Ursache: schlicht zu wenige Gradientenschritte. Erst nach
-dieser Korrektur entstanden die Ergebnisse in der Tabelle oben.
+## Architektur
 
-## Setup
+![Dieselbe Behandlungsnotiz läuft durch RAG-Baseline und LoRA-Finetune auf identischem Basismodell; beide liefern GOZ-Codes, die auf 81 Testnotizen verglichen werden](docs/architecture.svg)
+
+Beide Pfade nutzen dasselbe unveränderte Llama-3.2-3B-Instruct, nur der Weg des
+Domänenwissens unterscheidet sich. Genau das macht den Vergleich aussagekräftig.
+
+## Was es kann, und was nicht
+
+Llama-3.2-3B-Instruct, 10 kuratierte GOZ-Kern-Codes, 325 Trainings- und 81 Testnotizen
+(synthetisch generiert, siehe `scripts/generate_data.py`):
+
+| Ansatz | Precision | Recall | F1 | Exact Match |
+|---|---|---|---|---|
+| RAG-Baseline | 0.40 | 0.70 | 0.48 | 0.07 |
+| LoRA-Finetune | **0.65** | 0.58 | **0.59** | **0.38** |
+| Graph (Merge + Verifier) | 0.65 | 0.58 | 0.59 | 0.38 |
+
+Die RAG-Baseline hat den höheren Recall, weil sie mehr Kandidaten angeboten bekommt und
+daher öfter irgendeinen richtigen Code trifft. Das Finetune ist präziser und trifft
+deutlich öfter die exakte Kombination. Der Graph bringt nichts, siehe oben.
+
+**Was dieses Projekt nicht ist:** Der Label-Space ist auf 10 Alltags-Codes begrenzt statt
+auf die vollen 221 GOZ-Codes, eine bewusste Reduktion, um mit der kleinen synthetischen
+Datenmenge genug Beispiele pro Code zu haben. Die Trainingsdaten sind LLM-generiert und
+nicht im großen Stil mit realen Praxisfällen abgeglichen. Die RAG-Baseline nutzt eine
+vereinfachte Retrieval-Pipeline ohne die Segmentierungs- und Validierungsschritte eines
+Produktivsystems. Und die faire Checker-Zeile fehlt noch, sie braucht eine GPU-Sitzung.
+
+**Datenherkunft:** ausschließlich die amtliche GOZ-Codeliste (öffentliche Gebührenordnung,
+`data/goz_codes.json`) und komplett selbst generierte synthetische Notizen. Keine realen
+Patienten- oder Praxisdaten, kein Material aus Drittsystemen.
+
+## Selbst ausprobieren
+
+Einmalig: `python -m venv .venv`, `.venv/Scripts/python.exe -m pip install -e ".[dev]"` und
+`.env` aus [`.env.example`](.env.example) anlegen. Training und Inferenz laufen auf Colab
+(`notebooks/train_and_infer.ipynb`, braucht HF-Zustimmung zur Llama-3.2-Lizenz), die lokale
+Demo braucht die von dort heruntergeladenen Artefakte unter `adapters/`.
 
 ```bash
-python -m venv .venv
-.venv/Scripts/python.exe -m pip install -e ".[dev]"
-cp .env.example .env  # ANTHROPIC_API_KEY eintragen
 .venv/Scripts/python.exe -m pytest tests/ -v
+python scripts/analyze_merge_headroom.py --results-dir results/   # Diagnose ohne GPU
+.venv/Scripts/python.exe -m streamlit run app.py                  # lokale Demo
 ```
 
-Trainingsdaten generieren und Codeliste kuratieren: siehe
-`scripts/curate_codes.py`, `scripts/generate_data.py`,
-`scripts/build_dataset.py`.
+---
 
-Training + Inferenz laufen auf Colab: `notebooks/train_and_infer.ipynb`
-(braucht HF-Zustimmung zur Llama-3.2-Lizenz).
+```console
+marco@portfolio:~$ open marco-os --project goz-finetune-vs-rag
+```
 
-Demo starten (braucht die von Colab heruntergeladenen Artefakte unter
-`adapters/`): `.venv/Scripts/python.exe -m streamlit run app.py`
+**[▸ Dieses Projekt in MARCO.OS öffnen](https://maggostang-droid.github.io/marco-os/#goz-finetune-vs-rag)**,
+dem interaktiven Portfolio von Marco Stang.
 
-## Datenherkunft
+**Schwesterprojekte:**
+[SQL Copilot](https://github.com/maggostang-droid/sql-copilot) (LangGraph-Agent mit Guardrails) ·
+[Review Risk Predictor](https://github.com/maggostang-droid/review-risk-predictor) (erklärbares ML, React/FastAPI) ·
+[Ask-Marco Assistant](https://github.com/maggostang-droid/ask-marco-assistant) (Chat über alle Projekte)
 
-Nur die amtliche GOZ-Codeliste (öffentliche Gebührenordnung, `data/goz_codes.json`)
-und komplett selbst generierte, synthetische Trainings-/Testnotizen
-(`scripts/generate_data.py`). Keine realen Patienten-/Praxisdaten, kein
-Code oder Trainingsmaterial aus Drittsystemen.
-
-## Limitierungen
-
-- Label-Space auf 10 Alltags-Codes begrenzt (nicht die vollen 221 GOZ-Codes) -
-  bewusste Reduktion, um mit der kleinen synthetischen Datenmenge genug
-  Beispiele pro Code fürs Finetuning zu haben
-- Trainingsdaten sind synthetisch (LLM-generiert), kein Abgleich mit realen
-  Praxisfällen im großen Stil
-- RAG-Baseline nutzt eine vereinfachte Retrieval-Pipeline ohne die
-  Segmentierungs- und Validierungsschritte eines Produktivsystems
-
-## Portfolio-Kontext
-
-Dieses Projekt ist Teil von **[MARCO.OS](https://maggostang-droid.github.io/marco-os/)**,
-dem interaktiven Portfolio von Marco Stang. Schwesterprojekte:
-
-- [SQL Copilot](https://github.com/maggostang-droid/sql-copilot) — LangGraph-Agent für Text-to-SQL mit Guardrails und Selbstkorrektur
-- [Review Risk Predictor](https://github.com/maggostang-droid/review-risk-predictor) — erklärbare ML-Risikovorhersage (React/FastAPI)
-- [Ask-Marco Assistant](https://github.com/maggostang-droid/ask-marco-assistant) — Chat, der alle Portfolio-Projekte kennt (Context-Stuffing + MCP-Server)
+<sub>Marco Stang · Dr.-Ing. · [LinkedIn](https://www.linkedin.com/in/marco-stang) · stang.marco@t-online.de · MIT-Lizenz</sub>

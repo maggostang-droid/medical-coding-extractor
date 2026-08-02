@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 272"
+     width="900" height="272" role="img" aria-label="Dieselbe Behandlungsnotiz laeuft durch RAG-Baseline und LoRA-Finetune auf identischem Basismodell; beide liefern GOZ-Codes, die auf 81 Testnotizen verglichen werden">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"
+            orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#a78bfa"/>
+    </marker>
+  </defs>
+  <rect x="0.5" y="0.5" width="899" height="271" rx="14"
+        fill="#0a0716" stroke="#fbbf24" stroke-width="1" opacity="1"/>
+  <rect x="0.5" y="0.5" width="899" height="36" rx="14" fill="#140f24"/>
+  <rect x="0.5" y="22" width="899" height="14" fill="#140f24"/>
+  <line x1="0.5" y1="36" x2="899.5" y2="36" stroke="#fbbf24" stroke-width="1" opacity="0.45"/>
+  <circle cx="20" cy="18" r="5" fill="#ff5f57"/>
+  <circle cx="38" cy="18" r="5" fill="#febc2e"/>
+  <circle cx="56" cy="18" r="5" fill="#28c840"/>
+  <text x="76" y="23" fill="#c9c5e8" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="12"
+        opacity="0.9">app://goz-finetune-vs-rag · architecture</text>
+
+  <path d="M 200 116.52 L 264.30555555555554 98" fill="none" stroke="#a78bfa" stroke-width="1.8"
+        marker-end="url(#arrow)" opacity="0.9"/>
+  
+  <path d="M 200 165.48 L 264.30555555555554 184" fill="none" stroke="#a78bfa" stroke-width="1.8"
+        marker-end="url(#arrow)" opacity="0.9"/>
+  
+  <path d="M 463.68055555555554 98 L 530 117.48979591836735" fill="none" stroke="#a78bfa" stroke-width="1.8"
+        marker-end="url(#arrow)" opacity="0.9"/>
+  
+  <path d="M 463.68055555555554 184 L 530 164.51020408163265" fill="none" stroke="#a78bfa" stroke-width="1.8"
+        marker-end="url(#arrow)" opacity="0.9"/>
+  
+  <path d="M 690 141 L 720 141" fill="none" stroke="#a78bfa" stroke-width="1.8"
+        marker-end="url(#arrow)" opacity="0.9"/>
+  
+
+  <g>
+    <rect x="30" y="112" width="170" height="58" rx="10"
+          fill="#140f24" stroke="#06040d" stroke-width="3"/>
+    <rect x="30" y="112" width="170" height="58" rx="10"
+          fill="none" stroke="#fbbf24" stroke-width="1.5" opacity="0.85"/>
+    <text x="115" y="138" fill="#e7e4f5" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace"
+          font-size="14" font-weight="600" text-anchor="middle">Behandlungs-</text>
+    <text x="115" y="156" fill="#c9c5e8" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="11" text-anchor="middle" opacity="0.85">notiz</text>
+  </g>
+  <g>
+    <rect x="250" y="40" width="230" height="58" rx="10"
+          fill="#140f24" stroke="#06040d" stroke-width="3"/>
+    <rect x="250" y="40" width="230" height="58" rx="10"
+          fill="none" stroke="#fbbf24" stroke-width="1.5" opacity="0.85"/>
+    <text x="365" y="66" fill="#e7e4f5" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace"
+          font-size="14" font-weight="600" text-anchor="middle">RAG-Baseline</text>
+    <text x="365" y="84" fill="#c9c5e8" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="11" text-anchor="middle" opacity="0.85">BM25 + e5, Kandidaten im Prompt</text>
+  </g>
+  <g>
+    <rect x="250" y="184" width="230" height="58" rx="10"
+          fill="#fbbf24" stroke="#06040d" stroke-width="3"/>
+    <rect x="250" y="184" width="230" height="58" rx="10"
+          fill="none" stroke="#06040d" stroke-width="1.5" opacity="1"/>
+    <text x="365" y="210" fill="#06040d" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace"
+          font-size="14" font-weight="600" text-anchor="middle">LoRA-Finetune</text>
+    <text x="365" y="228" fill="#06040d" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="11" text-anchor="middle" opacity="0.85">Wissen in den Gewichten</text>
+  </g>
+  <g>
+    <rect x="530" y="112" width="160" height="58" rx="10"
+          fill="#140f24" stroke="#06040d" stroke-width="3"/>
+    <rect x="530" y="112" width="160" height="58" rx="10"
+          fill="none" stroke="#fbbf24" stroke-width="1.5" opacity="0.85"/>
+    <text x="610" y="138" fill="#e7e4f5" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace"
+          font-size="14" font-weight="600" text-anchor="middle">GOZ-Codes</text>
+    <text x="610" y="156" fill="#c9c5e8" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="11" text-anchor="middle" opacity="0.85">Multi-Label</text>
+  </g>
+  <g>
+    <rect x="720" y="112" width="150" height="58" rx="10"
+          fill="#140f24" stroke="#06040d" stroke-width="3"/>
+    <rect x="720" y="112" width="150" height="58" rx="10"
+          fill="none" stroke="#fbbf24" stroke-width="1.5" opacity="0.85"/>
+    <text x="795" y="138" fill="#e7e4f5" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace"
+          font-size="14" font-weight="600" text-anchor="middle">Eval</text>
+    <text x="795" y="156" fill="#c9c5e8" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="11" text-anchor="middle" opacity="0.85">81 Testnotizen</text>
+  </g>
+</svg>
