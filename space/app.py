@@ -205,17 +205,21 @@ graph = graph_predict(beispiel["rag"], beispiel["finetune"], set(code_by_nr))
 ergebniszeile("Soll", "so wäre es richtig", expected, expected)
 ergebniszeile("RAG-Baseline", "schlägt nach", beispiel["rag"], expected)
 ergebniszeile("LoRA-Finetune", "hat gelernt", beispiel["finetune"], expected)
-ergebniszeile("Graph · Aggregator", "verrechnet beide", graph.predicted_codes, expected)
+ergebniszeile("Graph · Aggregator", "entscheidet nach Herkunft", graph.predicted_codes, expected)
 if graph.uncertain:
     st.caption(
-        "Der Aggregator legt " + ", ".join(f"`{c}`" for c in graph.uncertain)
-        + " als unsicher einem Menschen vor, statt sie vorherzusagen — bei 95 % der "
-        "Notizen. Genau daran ist diese Fassung gescheitert."
+        "Der Aggregator übernimmt nur, was **beide** Pfade liefern oder was allein vom "
+        "Finetune kommt. " + ", ".join(f"`{c}`" for c in graph.uncertain)
+        + " stammen allein von der RAG-Baseline und gelten deshalb als unsicher — "
+        "unabhängig davon, ob sie stimmen. Bei 95 % der Notizen passiert genau das."
     )
-ergebniszeile("Graph · Checker <sup>1</sup>", "wählt aus beiden aus", beispiel["checker"], expected)
+ergebniszeile("Graph · Checker <sup>1</sup>", "entscheidet nach Inhalt", beispiel["checker"], expected)
 st.caption(
-    "¹ Vorab-Sonde mit einem stärkeren Modell — zeigt, dass die Auswahlaufgabe lösbar "
-    "ist, ist aber **kein fairer Vergleich** zu den Zeilen darüber. Details unten."
+    "Der Checker bekommt alle Kandidaten beider Pfade mit ihrer Katalogbeschreibung "
+    "vorgelegt und prüft sie gegen die Notiz — Wiedererkennen statt Erinnern.  \n"
+    "¹ Vorab-Sonde mit einem stärkeren Modell: **kein fairer Vergleich** zu den Zeilen "
+    "darüber. Und ein Beispiel ist ein Beispiel — über alle 81 Testnotizen trifft das "
+    "Finetune 38 % exakt, der Aggregator ebenfalls 38 %, der Checker 74 %."
 )
 
 # --- Ebene 3: alles Weitere, aufklappbar ------------------------------------
