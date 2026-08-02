@@ -53,21 +53,10 @@ HERO_TEXT = (
     "Kanäle durchgeführt."
 )
 HERO_MARKUPS = [
-    ("Infiltration gesetzt", "0090", "Infiltrationsanästhesie", 60),
-    ("alte Krone musste runter", "2290", "Entfernung einer Krone", 180),
-    ("WK-Aufbereitung zwei Kanäle", "2410", "Wurzelkanal-Aufbereitung, je Kanal", 392),
+    ("Infiltration gesetzt", "0090", "Infiltrationsanästhesie"),
+    ("alte Krone musste runter", "2290", "Entfernung einer Krone"),
+    ("WK-Aufbereitung zwei Kanäle", "2410", "Wurzelkanal-Aufbereitung"),
 ]
-
-# GOZ 2012: Betrag = Punktzahl x Punktwert x Steigerungsfaktor. Der Punktwert ist
-# im Gesetz festgeschrieben; 2,3 ist der Regelhoechstsatz, den Praxen im
-# Normalfall ansetzen. Gegenprobe: 0090 ergibt damit 7,76 EUR - genau der Wert,
-# den die Gebuehrenverzeichnisse veroeffentlichen.
-GOZ_PUNKTWERT = 0.0562421
-GOZ_FAKTOR = 2.3
-
-
-def euro(punkte: int) -> str:
-    return f"{punkte * GOZ_PUNKTWERT * GOZ_FAKTOR:.2f}".replace(".", ",") + " €"
 
 st.set_page_config(page_title="GOZ-Extraktion: Finetune vs. RAG vs. Graph", page_icon="🦷", layout="wide")
 
@@ -85,20 +74,13 @@ st.markdown(
   }
   .goz-map { display: grid; gap: .35rem; margin: .8rem 0 .2rem; }
   .goz-map-row {
-    display: grid; grid-template-columns: 1fr auto minmax(0, 15rem) 5.2rem; gap: .9rem;
+    display: grid; grid-template-columns: 1fr auto auto; gap: .9rem;
     align-items: baseline; padding: .45rem .8rem; border-radius: 7px;
     background: rgba(128,128,128,.07); font-size: .93rem;
   }
   .goz-map-row .von { opacity: .75; font-style: italic; }
   .goz-map-row .nach { font-weight: 700; font-variant-numeric: tabular-nums; }
   .goz-map-row .was { opacity: .6; font-size: .85rem; }
-  .goz-map-row .preis { font-variant-numeric: tabular-nums; text-align: right; opacity: .85; }
-  .goz-map-row.summe {
-    background: none; border-top: 1px solid rgba(128,128,128,.3);
-    border-radius: 0; margin-top: .15rem; padding-top: .55rem;
-  }
-  .goz-map-row.summe .von { font-style: normal; opacity: 1; font-weight: 600; }
-  .goz-map-row.summe .preis { font-weight: 700; opacity: 1; font-size: 1.05rem; }
   .goz-chips { display: flex; flex-wrap: wrap; gap: .32rem; align-items: center; }
   .goz-chip {
     font-size: .84rem; font-weight: 650; font-variant-numeric: tabular-nums;
@@ -186,33 +168,19 @@ st.markdown(
 )
 
 hero_markiert = HERO_TEXT
-for phrase, _, _, _ in HERO_MARKUPS:
+for phrase, _, _ in HERO_MARKUPS:
     hero_markiert = hero_markiert.replace(phrase, f"<mark>{phrase}</mark>")
 st.markdown(f'<div class="goz-notiz">{hero_markiert}</div>', unsafe_allow_html=True)
 
 zeilen = "".join(
     f'<div class="goz-map-row"><span class="von">„{phrase}“</span>'
-    f'<span class="nach">{nr}</span><span class="was">{was}</span>'
-    f'<span class="preis">{euro(pkt)}</span></div>'
-    for phrase, nr, was, pkt in HERO_MARKUPS
-)
-summe = euro(sum(pkt for *_, pkt in HERO_MARKUPS))
-zeilen += (
-    f'<div class="goz-map-row summe"><span class="von">Diese eine Notiz ist wert</span>'
-    f'<span class="nach"></span><span class="was"></span>'
-    f'<span class="preis">{summe}</span></div>'
+    f'<span class="nach">{nr}</span><span class="was">{was}</span></div>'
+    for phrase, nr, was in HERO_MARKUPS
 )
 st.markdown(f'<div class="goz-map">{zeilen}</div>', unsafe_allow_html=True)
-st.markdown(
-    "**Übersieht jemand eine Ziffer, fehlt der Betrag auf der Rechnung** — bei tausenden "
-    "Notizen im Jahr ist das der Grund, warum sich Automatisierung hier lohnt."
-)
 st.caption(
     "Ein handverlesenes Beispiel zur Erklärung — die Zuordnung Textstelle → Ziffer ist "
-    "hier von Hand markiert. Beträge nach GOZ 2012 (Punktwert 5,62421 Cent) zum "
-    "2,3-fachen Regelhöchstsatz. 2410 wird je Kanal berechnet, hier also zweimal — "
-    "diese Mehrfachabrechnung bildet das Projekt bewusst noch nicht ab. "
-    "Alles ab hier ist echter Modell-Output."
+    "hier von Hand markiert. Alles ab hier ist echter Modell-Output."
 )
 
 # --- Ebene 2: Der Vergleich -------------------------------------------------
