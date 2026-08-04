@@ -42,7 +42,7 @@ from goz_extract.graph_merge import graph_predict  # noqa: E402
 CODES_PATH = REPO / "data" / "goz_codes.json"
 EXAMPLES_PATH = ROOT / "data" / "demo_examples.json"
 ADAPTER_URL = "https://huggingface.co/VoidFloat/goz-extract-llama32-3b"
-REPO_URL = "https://github.com/maggostang-droid/medical-coding-extractor"
+REPO_URL = "https://github.com/marco-stang/medical-coding-extractor"
 
 # Handannotiertes Einstiegsbeispiel. Die Zuordnung Textstelle -> Ziffer ist
 # hier von Hand gesetzt (nur zur Erklaerung); alles darunter ist echter
@@ -403,5 +403,5 @@ st.divider()
 st.caption(
     "Portfolio-Projekt von Dr.-Ing. Marco Stang · "
     f"[Code auf GitHub]({REPO_URL}) · "
-    "[MARCO.OS](https://maggostang-droid.github.io/marco-os/)"
+    "[MARCO.OS](https://marco-stang.github.io/)"
 )

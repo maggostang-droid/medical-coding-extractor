@@ -199,12 +199,12 @@ python scripts/analyze_merge_headroom.py --results-dir results/   # Diagnose ohn
 marco@portfolio:~$ open marco-os --project goz-finetune-vs-rag
 ```
 
-**[▸ Dieses Projekt in MARCO.OS öffnen](https://maggostang-droid.github.io/marco-os/#goz-finetune-vs-rag)**,
+**[▸ Dieses Projekt in MARCO.OS öffnen](https://marco-stang.github.io/#goz-finetune-vs-rag)**,
 dem interaktiven Portfolio von Marco Stang.
 
 **Schwesterprojekte:**
-[SQL Copilot](https://github.com/maggostang-droid/sql-copilot) (LangGraph-Agent mit Guardrails) ·
-[Review Risk Predictor](https://github.com/maggostang-droid/review-risk-predictor) (erklärbares ML, React/FastAPI) ·
-[Ask-Marco Assistant](https://github.com/maggostang-droid/ask-marco-assistant) (Chat über alle Projekte)
+[SQL Copilot](https://github.com/marco-stang/sql-copilot) (LangGraph-Agent mit Guardrails) ·
+[Review Risk Predictor](https://github.com/marco-stang/review-risk-predictor) (erklärbares ML, React/FastAPI) ·
+[Ask-Marco Assistant](https://github.com/marco-stang/ask-marco-assistant) (Chat über alle Projekte)
 
 <sub>Marco Stang · Dr.-Ing. · [LinkedIn](https://www.linkedin.com/in/marco-stang) · stang.marco@t-online.de · MIT-Lizenz</sub>

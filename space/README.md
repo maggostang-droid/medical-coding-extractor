@@ -30,4 +30,4 @@ Live-Inferenz aus; auf der freien CPU-Stufe dauert das entsprechend.
 Trainingsdaten sind vollständig synthetisch erzeugt, kein Abgleich mit realen
 Praxisfällen.
 
-Code: <https://github.com/maggostang-droid/medical-coding-extractor>
+Code: <https://github.com/marco-stang/medical-coding-extractor>

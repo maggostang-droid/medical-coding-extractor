@@ -24,7 +24,7 @@ GitHub*:
 
 | Feld | Wert |
 |---|---|
-| Repository | `maggostang-droid/medical-coding-extractor` |
+| Repository | `marco-stang/medical-coding-extractor` |
 | Branch | `master` |
 | Main file path | `space/app.py` |
 

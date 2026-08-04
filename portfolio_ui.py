@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import streamlit as st
 
-PORTFOLIO_URL = "https://maggostang-droid.github.io/marco-os/"
+PORTFOLIO_URL = "https://marco-stang.github.io/"
 
 # Cluster-Akzente, identisch zu CLUSTER_ACCENT in marco-os/assets/js/window-manager.js
 ACCENT = {
@@ -124,10 +124,10 @@ def portfolio_footer(repo: str, project_id: str, caveats: list[str], siblings: l
     if caveats:
         st.caption("**Was diese Demo nicht ist:** " + " · ".join(caveats))
     links = [
-        f"[Quellcode auf GitHub](https://github.com/maggostang-droid/{repo})",
+        f"[Quellcode auf GitHub](https://github.com/marco-stang/{repo})",
         f"[Dieses Projekt in MARCO.OS]({PORTFOLIO_URL}#{project_id})",
     ]
     if siblings:
-        links += [f"[{name}](https://github.com/maggostang-droid/{slug})" for name, slug in siblings]
+        links += [f"[{name}](https://github.com/marco-stang/{slug})" for name, slug in siblings]
     st.caption(" · ".join(links))
     st.caption("Marco Stang · Dr.-Ing. · [LinkedIn](https://www.linkedin.com/in/marco-stang) · stang.marco@t-online.de")
